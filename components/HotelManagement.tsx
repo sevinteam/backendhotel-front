@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { BankIcon, DocumentTextIcon, SearchIcon, PlusIcon, TrashIcon, RefreshIcon } from './icons';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { BankIcon, DocumentTextIcon, SearchIcon, PlusIcon, TrashIcon, RefreshIcon, ShieldTickIcon, ShieldCrossIcon } from './icons';
 import Pagination from './Pagination';
 
 interface HotelItem {
@@ -24,14 +24,14 @@ const initialHotelsData: HotelItem[] = [
   { id: 63, name: 'مینا', city: 'تهران', status: 'منتشر شده', stars: 2, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به دروازه دولت'], isSnapp: true, snappId: '2766' },
   { id: 62, name: 'خانواده', city: 'تهران', status: 'منتشر شده', stars: 1, type: 'مهمانپذیر', tags: ['هتل اقتصادی', 'نزدیک به موزه عبرت'], isSnapp: false, snappId: '-' },
   { id: 61, name: 'بابا طاهر', city: 'تهران', status: 'منتشر شده', stars: 3, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به میدان فردوسی'], isSnapp: true, snappId: '55' },
-  { id: 60, name: 'آسیا', city: 'تهران', status: 'منتشر شده', stars: 1, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به ایستگاه مترو ملت'], isSnapp: true, snappId: '434' },
-  { id: 59, name: 'کوروش', city: 'شیراز', status: 'منتشر شده', stars: 4, type: 'هتل', tags: ['هتل لوکس', 'نزدیک ارگ کریمخان'], isSnapp: true, snappId: '782' },
-  { id: 58, name: 'پارسیان', city: 'اصفهان', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['هتل پنج ستاره', 'سنتی و مدرن'], isSnapp: true, snappId: '912' },
-  { id: 57, name: 'داریوش', city: 'کیش', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['هتل ۵ ستاره', 'معماری هخامنشی'], isSnapp: true, snappId: '105' },
-  { id: 56, name: 'اسپیناس پالاس', city: 'تهران', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['هتل فوق لوکس', 'سعادت آباد'], isSnapp: true, snappId: '301' },
-  { id: 55, name: 'هما', city: 'شیراز', status: 'منتشر شده', stars: 4, type: 'هتل', tags: ['هتل با باغ زیبا', 'نزدیک حافظیه'], isSnapp: false, snappId: '-' },
-  { id: 54, name: 'قصر طلایی', city: 'مشهد', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['هتل مجلل', 'نزدیک حرم مطهر'], isSnapp: true, snappId: '512' },
-  { id: 53, name: 'لاله', city: 'تهران', status: 'پیش‌نویس', stars: 4, type: 'هتل', tags: ['هتل بین‌المللی', 'مرکز تهران'], isSnapp: false, snappId: '-' },
+  { id: 60, name: 'آسیا', city: 'تهران', status: 'منتشر شده', stars: 1, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به چهارراه ولیعصر'], isSnapp: true, snappId: '434' },
+  { id: 59, name: 'سیمرغ', city: 'شیراز', status: 'منتشر شده', stars: 4, type: 'هتل', tags: ['لوکس', 'نزدیک حافظیه'], isSnapp: true, snappId: '112' },
+  { id: 58, name: 'کوروش', city: 'اصفهان', status: 'منتشر شده', stars: 3, type: 'هتل', tags: ['نزدیک سی‌وسه‌پل'], isSnapp: true, snappId: '305' },
+  { id: 57, name: 'داریوش', city: 'کیش', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['ساحلی', 'لوکس'], isSnapp: true, snappId: '99' },
+  { id: 56, name: 'هما', city: 'مشهد', status: 'منتشر شده', stars: 4, type: 'هتل', tags: ['نزدیک حرم'], isSnapp: true, snappId: '210' },
+  { id: 55, name: 'اسپیناس پالاس', city: 'تهران', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['فوق لوکس', 'سعادت‌آباد'], isSnapp: true, snappId: '101' },
+  { id: 54, name: 'پردیسان', city: 'مشهد', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['ییلاقی', 'لوکس'], isSnapp: true, snappId: '202' },
+  { id: 53, name: 'عباسی', city: 'اصفهان', status: 'منتشر شده', stars: 5, type: 'اقامتگاه سنتی', tags: ['تاریخی', 'چهارباغ'], isSnapp: true, snappId: '333' },
   { id: 52, name: 'پارسیان آزادی', city: 'تهران', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['هتل مدرن', 'شمال تهران'], isSnapp: true, snappId: '890' },
 ];
 
@@ -40,11 +40,24 @@ interface CustomDropdownProps {
   onChange: (val: string) => void;
   options: { label: string; value: string }[];
   placeholder: string;
+  searchable?: boolean;
 }
 
-const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, onChange, options, placeholder }) => {
+const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, onChange, options, placeholder, searchable }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [filterText, setFilterText] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+        setFilterText('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const filteredOptions = useMemo(() => {
     if (!filterText.trim()) return options;
@@ -54,7 +67,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, onChange, option
   const selectedLabel = options.find(o => o.value === value)?.label || placeholder;
 
   return (
-    <div className="relative">
+    <div className="relative" ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -67,14 +80,14 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, onChange, option
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl p-2 max-h-60 overflow-y-auto scrollbar-none">
-          {options.length > 3 && (
+        <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl p-2 max-h-48 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 dark:[&::-webkit-scrollbar-thumb]:bg-gray-700 [&::-webkit-scrollbar-thumb]:rounded-full">
+          {searchable && (
             <div className="mb-2 p-1">
               <input
                 type="text"
                 value={filterText}
                 onChange={(e) => setFilterText(e.target.value)}
-                placeholder="جستجو..."
+                placeholder="جستجو در لیست..."
                 className="w-full px-3 py-1.5 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-1 focus:ring-[#6644F0]"
                 onClick={(e) => e.stopPropagation()}
               />
@@ -82,9 +95,9 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ value, onChange, option
           )}
           <div className="space-y-1">
             {filteredOptions.length > 0 ? (
-              filteredOptions.map((opt) => (
+              filteredOptions.map((opt, index) => (
                 <button
-                  key={opt.value}
+                  key={`${opt.value}-${index}`}
                   type="button"
                   onClick={() => {
                     onChange(opt.value);
@@ -130,7 +143,6 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCity, setSelectedCity] = useState('همه');
-  const [selectedStar, setSelectedStar] = useState('همه');
   const [selectedType, setSelectedType] = useState('همه');
   const [hotels, setHotels] = useState<HotelItem[]>(initialHotelsData);
   const itemsPerPage = 10;
@@ -142,15 +154,15 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
     { label: 'اصفهان', value: 'اصفهان' },
     { label: 'کیش', value: 'کیش' },
     { label: 'مشهد', value: 'مشهد' },
-  ];
-
-  const starOptions = [
-    { label: 'همه ستاره‌ها', value: 'همه' },
-    { label: '۵ ستاره', value: '5' },
-    { label: '۴ ستاره', value: '4' },
-    { label: '۳ ستاره', value: '3' },
-    { label: '۲ ستاره', value: '2' },
-    { label: '۱ ستاره', value: '1' },
+    { label: 'تبریز', value: 'تبریز' },
+    { label: 'رشت', value: 'رشت' },
+    { label: 'مازندران', value: 'مازندران' },
+    { label: 'قم', value: 'قم' },
+    { label: 'کرمان', value: 'کرمان' },
+    { label: 'یزد', value: 'یزد' },
+    { label: 'اهواز', value: 'اهواز' },
+    { label: 'قشم', value: 'قشم' },
+    { label: 'رامسر', value: 'رامسر' },
   ];
 
   const typeOptions = [
@@ -159,6 +171,11 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
     { label: 'هتل آپارتمان', value: 'هتل آپارتمان' },
     { label: 'اقامتگاه سنتی', value: 'اقامتگاه سنتی' },
     { label: 'مهمانپذیر', value: 'مهمانپذیر' },
+    { label: 'ویلا', value: 'ویلا' },
+    { label: 'بوم‌گردی', value: 'بوم‌گردی' },
+    { label: 'سوئیت', value: 'سوئیت' },
+    { label: 'متل', value: 'متل' },
+    { label: 'هاستل', value: 'هاستل' },
   ];
 
   const filteredHotels = useMemo(() => {
@@ -169,12 +186,11 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
         hotel.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase().trim()));
 
       const matchesCity = selectedCity === 'همه' || hotel.city === selectedCity;
-      const matchesStar = selectedStar === 'همه' || hotel.stars.toString() === selectedStar;
       const matchesType = selectedType === 'همه' || hotel.type === selectedType;
 
-      return matchesSearch && matchesCity && matchesStar && matchesType;
+      return matchesSearch && matchesCity && matchesType;
     });
-  }, [hotels, searchQuery, selectedCity, selectedStar, selectedType]);
+  }, [hotels, searchQuery, selectedCity, selectedType]);
 
   const totalPages = Math.ceil(filteredHotels.length / itemsPerPage);
   
@@ -243,7 +259,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
       {activeTab === 'لیست هتل‌ها' ? (
         <div className="flex-1 flex flex-col pt-4">
           {/* نوار جستجوی پیشرفته و فیلترها با CustomDropdown */}
-          <div className="bg-gray-50 dark:bg-gray-700/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700 mb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="bg-gray-50 dark:bg-gray-700/40 p-4 rounded-xl border border-gray-100 dark:border-gray-700 mb-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* جستجو هوشمند */}
             <div className="relative">
               <span className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
@@ -271,19 +287,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                 }}
                 options={cityOptions}
                 placeholder="همه شهرها"
-              />
-            </div>
-
-            {/* فیلتر تعداد ستاره با منوی سفارشی و جستجو */}
-            <div>
-              <CustomDropdown
-                value={selectedStar}
-                onChange={(val) => {
-                  setSelectedStar(val);
-                  setCurrentPage(1);
-                }}
-                options={starOptions}
-                placeholder="همه ستاره‌ها"
+                searchable={true}
               />
             </div>
 
@@ -297,17 +301,17 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                 }}
                 options={typeOptions}
                 placeholder="همه نوع اقامتگاه‌ها"
+                searchable={true}
               />
             </div>
           </div>
 
           <div className="flex items-center justify-between mb-3 text-xs text-gray-500 dark:text-gray-400 px-1">
             <span>مجموع هتل‌های یافت شده: <strong className="text-gray-800 dark:text-gray-200">{filteredHotels.length}</strong> مورد</span>
-            {(selectedCity !== 'همه' || selectedStar !== 'همه' || selectedType !== 'همه' || searchQuery) && (
+            {(selectedCity !== 'همه' || selectedType !== 'همه' || searchQuery) && (
               <button
                 onClick={() => {
                   setSelectedCity('همه');
-                  setSelectedStar('همه');
                   setSelectedType('همه');
                   setSearchQuery('');
                   setCurrentPage(1);
@@ -333,7 +337,6 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                   <th className="p-3 text-center">هتل اسنپ؟</th>
                   <th className="p-3 text-center">شناسه اسنپ</th>
                   <th className="p-3">عملیات اسنپ</th>
-                  <th className="p-3">لوگو</th>
                   <th className="p-3">تگ‌های عمومی</th>
                   <th className="p-3 text-center">عملیات</th>
                 </tr>
@@ -341,81 +344,57 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-xs text-gray-700 dark:text-gray-200">
                 {currentHotels.length > 0 ? (
                   currentHotels.map((hotel) => (
-                    <tr key={hotel.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
-                      <td className="p-3 font-semibold text-gray-500 dark:text-gray-400">{hotel.id}</td>
-                      <td className="p-3 font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap">{hotel.name}</td>
-                      <td className="p-3 whitespace-nowrap">{hotel.city}</td>
-                      <td className="p-3 whitespace-nowrap">
-                        <span
-                          className={`inline-flex px-2.5 py-1 rounded-md text-[10px] font-bold ${
-                            hotel.status === 'منتشر شده'
-                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300'
-                              : 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300'
-                          }`}
-                        >
+                    <tr key={hotel.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-700/30 transition-colors">
+                      <td className="p-3 font-mono text-gray-500 dark:text-gray-400">{hotel.id}</td>
+                      <td className="p-3 font-bold text-gray-800 dark:text-gray-100">{hotel.name}</td>
+                      <td className="p-3 text-gray-600 dark:text-gray-300">{hotel.city}</td>
+                      <td className="p-3">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
                           {hotel.status}
                         </span>
                       </td>
-                      <td className="p-3 text-center font-bold whitespace-nowrap">{hotel.stars} ستاره</td>
-                      <td className="p-3 whitespace-nowrap">{hotel.type}</td>
-                      
-                      {/* هتل اسنپ است؟ */}
+                      <td className="p-3 text-center font-medium">{hotel.stars} ستاره</td>
+                      <td className="p-3 text-gray-600 dark:text-gray-300">{hotel.type}</td>
                       <td className="p-3 text-center">
                         {hotel.isSnapp ? (
-                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400 font-bold">✓</span>
+                          <ShieldTickIcon className="w-5 h-5 mx-auto" />
                         ) : (
-                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400 font-bold">×</span>
+                          <ShieldCrossIcon className="w-5 h-5 mx-auto" />
                         )}
                       </td>
-
-                      {/* شناسه اسنپ با استایل تگ متفاوت */}
-                      <td className="p-3 text-center">
-                        <span className="px-2.5 py-1 rounded-lg border border-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-[11px] font-semibold font-mono whitespace-nowrap shadow-2xs">
-                          {hotel.snappId}
-                        </span>
+                      <td className="p-3 text-center font-mono">
+                        {hotel.snappId !== '-' ? (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold bg-violet-50 dark:bg-violet-950/50 text-[#6644F0] dark:text-violet-300 border border-violet-200 dark:border-violet-800 shadow-2xs">
+                            {hotel.snappId}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">-</span>
+                        )}
                       </td>
-
-                      {/* عملیات اسنپ (دکمه بروزرسانی) */}
-                      <td className="p-3 whitespace-nowrap">
+                      <td className="p-3">
                         <button
+                          type="button"
                           onClick={() => handleSnappSync(hotel.name)}
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold py-1.5 px-3 rounded-lg transition-colors flex items-center gap-1.5"
+                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-medium transition-colors shadow-2xs flex items-center gap-1"
                         >
                           <RefreshIcon className="w-3.5 h-3.5" />
                           <span>دریافت اتاق‌ها از اسنپ</span>
                         </button>
                       </td>
-
-                      {/* لوگو یا جایگزین هوشمند در صورت آپلود نشدن */}
                       <td className="p-3">
-                        {hotel.logo ? (
-                          <img src={hotel.logo} alt={hotel.name} className="w-14 h-14 rounded-xl object-cover border border-gray-200 dark:border-gray-600 shadow-xs" />
-                        ) : (
-                          <div className="w-14 h-14 rounded-xl bg-violet-50 dark:bg-violet-950/50 border border-violet-200 dark:border-violet-800 flex items-center justify-center text-[#6644F0]">
-                            <BankIcon className="w-6 h-6" />
-                          </div>
-                        )}
-                      </td>
-
-                      {/* تگ‌های عمومی */}
-                      <td className="p-3">
-                        <div className="flex flex-wrap gap-1.5 min-w-[200px]">
-                          {hotel.tags.map((tag, idx) => (
-                            <span
-                              key={idx}
-                              className="px-2.5 py-1 rounded-lg border border-[#6644F0] bg-purple-50 dark:bg-purple-950/40 text-[#6644F0] dark:text-purple-300 text-[11px] font-semibold whitespace-nowrap shadow-2xs"
-                            >
+                        <div className="flex flex-wrap gap-1">
+                          {hotel.tags.map((tag, i) => (
+                            <span key={i} className="px-2.5 py-1 rounded-lg text-[10px] font-medium bg-violet-50 dark:bg-violet-950/50 text-[#6644F0] dark:text-violet-300 border border-violet-200 dark:border-violet-800 shadow-2xs">
                               {tag}
                             </span>
                           ))}
                         </div>
                       </td>
-
-                      {/* دکمه حذف جداگانه */}
                       <td className="p-3 text-center">
                         <button
+                          type="button"
                           onClick={() => handleDeleteHotel(hotel.id, hotel.name)}
-                          className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg transition-colors"
+                          className="p-1.5 bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors"
                           title="حذف هتل"
                         >
                           <TrashIcon className="w-4 h-4" />
@@ -425,8 +404,8 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={12} className="text-center py-12 text-gray-400">
-                      هتلی با این مشخصات یافت نشد.
+                    <td colSpan={11} className="text-center py-8 text-gray-400 text-xs">
+                      هیچ هتلی با این مشخصات یافت نشد.
                     </td>
                   </tr>
                 )}
@@ -434,9 +413,9 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
             </table>
           </div>
 
-          {/* صفحه‌بندی (۱۰ تا ۱۰ تا) */}
+          {/* پجینیشن */}
           {totalPages > 1 && (
-            <div className="pt-4 mt-auto">
+            <div className="pt-4 border-t border-gray-100 dark:border-gray-700 mt-4">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
@@ -446,14 +425,12 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
           )}
         </div>
       ) : (
-        <div className="flex-1 flex items-center justify-center flex-col text-center py-16">
-          <div className="w-16 h-16 rounded-full bg-gray-50 dark:bg-gray-700/50 flex items-center justify-center text-gray-300 dark:text-gray-500 mb-4">
+        <div className="flex-1 flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-violet-50 dark:bg-violet-950/50 flex items-center justify-center text-[#6644F0] mb-4">
             <DocumentTextIcon className="w-8 h-8" />
           </div>
-          <h3 className="text-base font-bold text-gray-700 dark:text-gray-200">بخش {activeTab}</h3>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 max-w-sm">
-            اطلاعات این تب به‌زودی از طریق APIهای جنگو بارگذاری خواهد شد.
-          </p>
+          <h2 className="text-base font-bold text-gray-800 dark:text-gray-100 mb-1">{activeTab}</h2>
+          <p className="text-xs text-gray-400 dark:text-gray-500 max-w-sm">این بخش به زودی فعال خواهد شد. تمامی اطلاعات این تب نیز در پایگاه داده مدیریت می‌شود.</p>
         </div>
       )}
     </div>
