@@ -167,7 +167,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                   setSelectedCity(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full py-2.5 px-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                className="w-full py-2.5 px-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6644F0] shadow-2xs transition-all cursor-pointer"
               >
                 <option value="همه">همه شهرها</option>
                 <option value="تهران">تهران</option>
@@ -186,7 +186,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                   setSelectedStar(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full py-2.5 px-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                className="w-full py-2.5 px-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6644F0] shadow-2xs transition-all cursor-pointer"
               >
                 <option value="همه">همه ستاره‌ها</option>
                 <option value="5">۵ ستاره</option>
@@ -205,7 +205,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                   setSelectedType(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full py-2.5 px-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                className="w-full py-2.5 px-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6644F0] shadow-2xs transition-all cursor-pointer"
               >
                 <option value="همه">همه نوع اقامتگاه‌ها</option>
                 <option value="هتل">هتل</option>
