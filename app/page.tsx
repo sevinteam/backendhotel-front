@@ -357,6 +357,14 @@ export default function AdminApp() {
         {renderContent()}
       </div>
 
+      <div className="fixed bottom-6 left-6 z-30">
+        <button 
+          title="راهنما و پشتیبانی"
+          className="bg-[#353535] dark:bg-gray-700 p-3 rounded-full shadow-lg hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#353535] dark:focus:ring-gray-500 cursor-pointer text-white"
+        >
+          <QuestionMarkCircleIcon className="w-7 h-7 text-white"/>
+        </button>
+      </div>
 
       <div className="fixed bottom-0 md:bottom-8 left-0 md:left-8 right-0 md:right-auto z-[1000] flex flex-col items-center md:items-start gap-4 w-full md:w-auto pointer-events-none">
         {toasts.map(toast => (

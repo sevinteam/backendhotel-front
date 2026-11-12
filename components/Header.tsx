@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
     XIcon,
@@ -45,7 +46,7 @@ const Header: React.FC<HeaderProps> = ({ openTabs, activeView, onTabClick, onClo
                 {/* دکمه پیشخوان ادمین در موبایل */}
                 <button
                     onClick={() => onTabClick('پیشخوان ادمین')}
-                    className={`flex items-center justify-center gap-2 p-2 px-4 rounded-lg text-sm font-medium whitespace-nowrap transition-colors group ${
+                    className={`flex items-center justify-center p-2 px-4 rounded-lg text-sm font-medium whitespace-nowrap transition-colors group ${
                         activeView === 'پیشخوان ادمین'
                             ? 'bg-[#353535] dark:bg-gray-700 text-white shadow-sm'
                             : 'bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400 hover:bg-[#353535] dark:hover:bg-gray-700 hover:text-white dark:hover:text-white'
@@ -96,7 +97,7 @@ const Header: React.FC<HeaderProps> = ({ openTabs, activeView, onTabClick, onClo
                                 <button
                                     key={tab}
                                     onClick={() => onTabClick(tab)}
-                                    className={`flex items-center justify-center gap-3 py-2 px-4 rounded-xl text-sm font-medium whitespace-nowrap transition-colors group shrink-0 ${
+                                    className={`flex items-center justify-center p-2 px-4 rounded-lg text-sm font-medium whitespace-nowrap transition-colors group shrink-0 ${
                                         activeView === tab
                                             ? 'bg-[#353535] dark:bg-gray-700 text-white shadow-sm'
                                             : 'bg-gray-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400 hover:bg-[#353535] dark:hover:bg-gray-700 hover:text-white dark:hover:text-white'
@@ -104,40 +105,39 @@ const Header: React.FC<HeaderProps> = ({ openTabs, activeView, onTabClick, onClo
                                 >
                                     {(() => {
                                         const isActive = activeView === tab;
-                                        const iconClass = "w-6 h-6 shrink-0 transition-colors";
                                         if (tab === 'پیشخوان ادمین') {
-                                            return <Home2Icon className={iconClass} isActive={isActive} />;
+                                            return <Home2Icon className="w-5 h-5 me-2 transition-colors" isActive={isActive} />;
                                         }
                                         if (isUserTab || tab === 'مدیریت پروفایل کاربران') {
-                                            return <Profile2UserIcon className={iconClass} isActive={isActive} />;
+                                            return <Profile2UserIcon className="w-5 h-5 me-2 transition-colors" isActive={isActive} />;
                                         }
                                         if (tab === 'مدیریت هتل و اتاق ها') {
-                                            return <BankIcon className={iconClass} isActive={isActive} />;
+                                            return <BankIcon className="w-5 h-5 me-2 transition-colors" isActive={isActive} />;
                                         }
                                         if (tab === 'مدیریت رزروهای کاربران') {
-                                            return <ClipboardTextIcon className={iconClass} isActive={isActive} />;
+                                            return <ClipboardTextIcon className="w-5 h-5 me-2 transition-colors" isActive={isActive} />;
                                         }
                                         if (tab === 'مدیریت چت های کاربران') {
-                                            return <ChatAltIcon className={iconClass} isActive={isActive} />;
+                                            return <ChatAltIcon className="w-5 h-5 me-2 transition-colors" isActive={isActive} />;
                                         }
                                         if (tab === 'مدیریت نوتیفیکیشن ها') {
-                                            return <BellIcon className={iconClass} isActive={isActive} />;
+                                            return <BellIcon className="w-5 h-5 me-2 transition-colors" isActive={isActive} />;
                                         }
                                         if (tab === 'مدیریت کد تخفیف ها') {
-                                            return <TagIcon className={iconClass} isActive={isActive} />;
+                                            return <TagIcon className="w-5 h-5 transition-colors" isActive={isActive} />;
                                         }
                                         if (tab === 'مدیریت بخش مالی') {
-                                            return <WalletMoneyIcon className={iconClass} isActive={isActive} />;
+                                            return <WalletMoneyIcon className="w-5 h-5 me-2 transition-colors" isActive={isActive} />;
                                         }
                                         if (tab === 'مدیریت مقالات وبسایت') {
-                                            return <ColorSwatchIcon className={iconClass} isActive={isActive} />;
+                                            return <ColorSwatchIcon className="w-5 h-5 me-2 transition-colors" isActive={isActive} />;
                                         }
-                                        return <Profile2UserIcon className={iconClass} isActive={isActive} />;
+                                        return <Profile2UserIcon className="w-5 h-5 me-2 transition-colors" isActive={isActive} />;
                                     })()}
                                     <span>{tab}</span>
                                     {tab !== 'پیشخوان ادمین' && (
                                         <span
-                                            className="ms-1 p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/20 transition-colors flex items-center justify-center"
+                                            className="ms-2 -my-1 -me-1 p-1 rounded-full hover:bg-transparent backdrop-blur-xs dark:hover:bg-white/20"
                                             onClick={(e) => {
                                                 e.stopPropagation(); // جلوگیری از فعال شدن تب هنگام بستن
                                                 onCloseTab(tab);
