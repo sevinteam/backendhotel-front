@@ -397,7 +397,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                           className="w-8 h-8 bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors inline-flex items-center justify-center shadow-2xs"
                           title="حذف هتل"
                         >
-                          <TrashIcon className="w-4 h-4" />
+                          <TrashIcon className="w-5 h-5" />
                         </button>
                       </td>
                     </tr>
