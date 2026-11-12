@@ -162,7 +162,7 @@ const ReservationTable: React.FC<{ reservations: Reservation[]; onOpenDeleteModa
 }
 
 // کامپوننت برای نمایش یک ردیف از لیست درخواست‌های حقوقی
-const LegalRequestRow: React.FC<{ request: LegalProfileRequest }> = ({ request }) => {
+const LegalRequestRow: React.FC<{ request: LegalProfileRequest; onNavigate?: (view: string, user: User) => void; }> = ({ request, onNavigate }) => {
     return (
         <>
             {/* نمای کارت برای موبایل */}
@@ -179,11 +179,22 @@ const LegalRequestRow: React.FC<{ request: LegalProfileRequest }> = ({ request }
                     </div>
                     <span className="bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 font-bold w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-lg">{String(request.id).padStart(2, '0')}</span>
                 </div>
-                <div className="flex items-center justify-between mt-4 border-t border-gray-100 dark:border-gray-700 pt-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-4 border-t border-gray-100 dark:border-gray-700 pt-3">
                     <StatusBadge status={request.status} />
-                    <button className="bg-[#353535] dark:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-xs whitespace-nowrap hover:bg-opacity-80">
-                        مشاهده درخواست
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {onNavigate && (
+                            <button 
+                                type="button"
+                                onClick={() => onNavigate('User Profile', request.user)}
+                                className="font-semibold py-2 px-3 rounded-lg text-xs whitespace-nowrap h-9 transition-colors bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-[#353535] dark:hover:bg-gray-600 hover:text-white"
+                            >
+                                مشاهده پروفایل کاربر
+                            </button>
+                        )}
+                        <button className="bg-[#353535] dark:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-xs whitespace-nowrap hover:bg-opacity-80">
+                            مشاهده درخواست
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -204,6 +215,15 @@ const LegalRequestRow: React.FC<{ request: LegalProfileRequest }> = ({ request }
                 <div className="flex items-center justify-center">
                      <div className="flex items-center gap-2">
                         <StatusBadge status={request.status} />
+                        {onNavigate && (
+                            <button 
+                                type="button"
+                                onClick={() => onNavigate('User Profile', request.user)}
+                                className="font-semibold py-2 px-3 rounded-lg text-xs whitespace-nowrap h-9 transition-colors bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-[#353535] dark:hover:bg-gray-600 hover:text-white"
+                            >
+                                مشاهده پروفایل کاربر
+                            </button>
+                        )}
                         <button className="bg-[#353535] dark:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-xs whitespace-nowrap hover:bg-opacity-80">
                             مشاهده درخواست
                         </button>
@@ -215,7 +235,7 @@ const LegalRequestRow: React.FC<{ request: LegalProfileRequest }> = ({ request }
 };
 
 // کامپوننت برای نمایش جدول درخواست‌های حقوقی
-const LegalRequestTable: React.FC<{ requests: LegalProfileRequest[] }> = ({ requests }) => {
+const LegalRequestTable: React.FC<{ requests: LegalProfileRequest[]; onNavigate?: (view: string, user: User) => void; }> = ({ requests, onNavigate }) => {
     return (
         <div>
             {/* هدر جدول (فقط دسکتاپ) */}
@@ -225,11 +245,11 @@ const LegalRequestTable: React.FC<{ requests: LegalProfileRequest[] }> = ({ requ
                 <div className="text-center"></div>
             </div>
             <div>
-                {requests.map(req => <LegalRequestRow key={req.id} request={req} />)}
+                {requests.map(req => <LegalRequestRow key={req.id} request={req} onNavigate={onNavigate} />)}
             </div>
         </div>
     );
-}
+};
 
 // کامپوننت اصلی UserList
 const UserList: React.FC<UserListProps> = ({ users, reservations, legalRequests, activeTab, onTabChange, currentPage, totalPages, onPageChange, searchQuery, onSearchChange, onOpenDeleteModal, onNavigate }) => {
@@ -243,7 +263,7 @@ const UserList: React.FC<UserListProps> = ({ users, reservations, legalRequests,
         }
         switch (activeTab) {
             case 'لیست درخواست پروفایل حقوقی':
-                return <LegalRequestTable requests={legalRequests} />;
+                return <LegalRequestTable requests={legalRequests} onNavigate={onNavigate} />;
             case 'لیست رزروهای جدید':
                 return <ReservationTable reservations={reservations} onOpenDeleteModal={onOpenDeleteModal!} onNavigate={onNavigate} />;
             default:
