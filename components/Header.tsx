@@ -12,7 +12,8 @@ import {
     BellIcon,
     TagIcon,
     WalletMoneyIcon,
-    ColorSwatchIcon
+    ColorSwatchIcon,
+    TaskSquareIcon
 } from './icons';
 import type { User } from '../types';
 
@@ -160,7 +161,7 @@ const Header: React.FC<HeaderProps> = ({ openTabs, activeView, onTabClick, onClo
                     {activeView !== 'مدیریت تسک ادمین ها' && (
                         <button onClick={() => onNavigate('مدیریت تسک ادمین ها')} className="relative">
                             <div className="flex items-center gap-4 py-3 px-5 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                                <CalendarIcon className="w-6 h-6 text-gray-800 dark:text-gray-200" />
+                                <TaskSquareIcon className="w-6 h-6 text-gray-800 dark:text-gray-200" />
                                 <span className='font-bold text-gray-800 dark:text-gray-200 text-xs'>۲۳ تسک</span>
                             </div>
                              {/* نشانگر نوتیفیکیشن */}

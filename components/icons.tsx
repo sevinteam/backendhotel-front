@@ -1,10 +1,20 @@
 
 import React from 'react';
-import { Home2, Bank, ClipboardText, Profile2User, Headphone, Notification, ReceiptDisscount, WalletMoney, ColorSwatch, Setting2 } from 'iconsax-reactjs';
+import { Home2, Bank, ClipboardText, Profile2User, Headphone, Notification, ReceiptDisscount, WalletMoney, ColorSwatch, Setting2, TaskSquare } from 'iconsax-reactjs';
 
 export const Setting2Icon: React.FC<{ className?: string; isActive?: boolean }> = ({ className = "w-6 h-6", isActive }) => (
     <div className={`${className} flex items-center justify-center transition-colors [&>svg]:w-full [&>svg]:h-full`}>
         <Setting2 
+            size="24" 
+            color={isActive ? "white" : "currentColor"} 
+            variant={isActive ? "Bold" : "Outline"} 
+        />
+    </div>
+);
+
+export const TaskSquareIcon: React.FC<{ className?: string; isActive?: boolean }> = ({ className = "w-6 h-6", isActive }) => (
+    <div className={`${className} flex items-center justify-center transition-colors [&>svg]:w-full [&>svg]:h-full`}>
+        <TaskSquare 
             size="24" 
             color={isActive ? "white" : "currentColor"} 
             variant={isActive ? "Bold" : "Outline"} 
