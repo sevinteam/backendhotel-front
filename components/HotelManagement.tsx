@@ -19,21 +19,21 @@ interface HotelItem {
 }
 
 const initialHotelsData: HotelItem[] = [
-  { id: 66, name: 'مهرگان', city: 'تهران', status: 'منتشر شده', stars: 2, rating: 2.1, type: 'هتل آپارتمان', tags: ['هتل اقتصادی', 'نزدیک به کلیسای مقدس'], isSnapp: true, snappId: '48', logo: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=60&h=60&fit=crop' },
-  { id: 65, name: 'لولاگر (گودو)', city: 'تهران', status: 'منتشر شده', stars: 1, rating: 1.2, type: 'اقامتگاه سنتی', tags: ['هتل اقتصادی', 'مهمانپذیر درجه ۱'], isSnapp: false, snappId: '-', logo: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=60&h=60&fit=crop' },
-  { id: 64, name: 'زیبا', city: 'تهران', status: 'منتشر شده', stars: 2, rating: 2.6, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به سفارت آلمان'], isSnapp: true, snappId: '436', logo: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=60&h=60&fit=crop' },
-  { id: 63, name: 'مینا', city: 'تهران', status: 'منتشر شده', stars: 2, rating: 2.1, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به دروازه دولت'], isSnapp: true, snappId: '2766', logo: 'https://images.unsplash.com/photo-1561501900-3701fa6a0864?w=60&h=60&fit=crop' },
-  { id: 62, name: 'خانواده', city: 'تهران', status: 'منتشر شده', stars: 1, rating: 1.5, type: 'مهمانپذیر', tags: ['هتل اقتصادی', 'نزدیک به موزه عبرت'], isSnapp: false, snappId: '-', logo: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=60&h=60&fit=crop' },
-  { id: 61, name: 'بابا طاهر', city: 'تهران', status: 'منتشر شده', stars: 3, rating: 4.5, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به میدان فردوسی'], isSnapp: true, snappId: '55', logo: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=60&h=60&fit=crop' },
-  { id: 60, name: 'آسیا', city: 'تهران', status: 'منتشر شده', stars: 1, rating: 1.1, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به ایستگاه مترو ملت'], isSnapp: true, snappId: '434', logo: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=60&h=60&fit=crop' },
-  { id: 59, name: 'کوروش', city: 'شیراز', status: 'منتشر شده', stars: 4, rating: 4.2, type: 'هتل', tags: ['هتل لوکس', 'نزدیک ارگ کریمخان'], isSnapp: true, snappId: '782', logo: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=60&h=60&fit=crop' },
-  { id: 58, name: 'پارسیان', city: 'اصفهان', status: 'منتشر شده', stars: 5, rating: 4.8, type: 'هتل', tags: ['هتل پنج ستاره', 'سنتی و مدرن'], isSnapp: true, snappId: '912', logo: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=60&h=60&fit=crop' },
-  { id: 57, name: 'داریوش', city: 'کیش', status: 'منتشر شده', stars: 5, rating: 4.9, type: 'هتل', tags: ['هتل ۵ ستاره', 'معماری هخامنشی'], isSnapp: true, snappId: '105', logo: 'https://images.unsplash.com/photo-1563911302283-d2bc129e7570?w=60&h=60&fit=crop' },
-  { id: 56, name: 'اسپیناس پالاس', city: 'تهران', status: 'منتشر شده', stars: 5, rating: 4.9, type: 'هتل', tags: ['هتل فوق لوکس', 'سعادت آباد'], isSnapp: true, snappId: '301', logo: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=60&h=60&fit=crop' },
-  { id: 55, name: 'هما', city: 'شیراز', status: 'منتشر شده', stars: 4, rating: 4.1, type: 'هتل', tags: ['هتل با باغ زیبا', 'نزدیک حافظیه'], isSnapp: false, snappId: '-', logo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=60&h=60&fit=crop' },
-  { id: 54, name: 'قصر طلایی', city: 'مشهد', status: 'منتشر شده', stars: 5, rating: 4.7, type: 'هتل', tags: ['هتل مجلل', 'نزدیک حرم مطهر'], isSnapp: true, snappId: '512', logo: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=60&h=60&fit=crop' },
-  { id: 53, name: 'لاله', city: 'تهران', status: 'پیش‌نویس', stars: 4, rating: 3.9, type: 'هتل', tags: ['هتل بین‌المللی', 'مرکز تهران'], isSnapp: false, snappId: '-', logo: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=60&h=60&fit=crop' },
-  { id: 52, name: 'پارسیان آزادی', city: 'تهران', status: 'منتشر شده', stars: 5, rating: 4.6, type: 'هتل', tags: ['هتل مدرن', 'شمال تهران'], isSnapp: true, snappId: '890', logo: 'https://images.unsplash.com/photo-1591088398332-8a7791972843?w=60&h=60&fit=crop' },
+  { id: 66, name: 'مهرگان', city: 'تهران', status: 'منتشر شده', stars: 2, rating: 2.1, type: 'هتل آپارتمان', tags: ['هتل اقتصادی', 'نزدیک به کلیسای مقدس'], isSnapp: true, snappId: '48', logo: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=100&h=100&fit=crop' },
+  { id: 65, name: 'لولاگر (گودو)', city: 'تهران', status: 'منتشر شده', stars: 1, rating: 1.2, type: 'اقامتگاه سنتی', tags: ['هتل اقتصادی', 'مهمانپذیر درجه ۱'], isSnapp: false, snappId: '-', logo: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=100&h=100&fit=crop' },
+  { id: 64, name: 'زیبا', city: 'تهران', status: 'منتشر شده', stars: 2, rating: 2.6, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به سفارت آلمان'], isSnapp: true, snappId: '436', logo: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=100&h=100&fit=crop' },
+  { id: 63, name: 'مینا', city: 'تهران', status: 'منتشر شده', stars: 2, rating: 2.1, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به دروازه دولت'], isSnapp: true, snappId: '2766', logo: 'https://images.unsplash.com/photo-1561501900-3701fa6a0864?w=100&h=100&fit=crop' },
+  { id: 62, name: 'خانواده', city: 'تهران', status: 'منتشر شده', stars: 1, rating: 1.5, type: 'مهمانپذیر', tags: ['هتل اقتصادی', 'نزدیک به موزه عبرت'], isSnapp: false, snappId: '-', logo: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=100&h=100&fit=crop' },
+  { id: 61, name: 'بابا طاهر', city: 'تهران', status: 'منتشر شده', stars: 3, rating: 4.5, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به میدان فردوسی'], isSnapp: true, snappId: '55', logo: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=100&h=100&fit=crop' },
+  { id: 60, name: 'آسیا', city: 'تهران', status: 'منتشر شده', stars: 1, rating: 1.1, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به ایستگاه مترو ملت'], isSnapp: true, snappId: '434', logo: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=100&h=100&fit=crop' },
+  { id: 59, name: 'کوروش', city: 'شیراز', status: 'منتشر شده', stars: 4, rating: 4.2, type: 'هتل', tags: ['هتل لوکس', 'نزدیک ارگ کریمخان'], isSnapp: true, snappId: '782', logo: 'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=100&h=100&fit=crop' },
+  { id: 58, name: 'پارسیان', city: 'اصفهان', status: 'منتشر شده', stars: 5, rating: 4.8, type: 'هتل', tags: ['هتل پنج ستاره', 'سنتی و مدرن'], isSnapp: true, snappId: '912', logo: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=100&h=100&fit=crop' },
+  { id: 57, name: 'داریوش', city: 'کیش', status: 'منتشر شده', stars: 5, rating: 4.9, type: 'هتل', tags: ['هتل ۵ ستاره', 'معماری هخامنشی'], isSnapp: true, snappId: '105', logo: 'https://images.unsplash.com/photo-1563911302283-d2bc129e7570?w=100&h=100&fit=crop' },
+  { id: 56, name: 'اسپیناس پالاس', city: 'تهران', status: 'منتشر شده', stars: 5, rating: 4.9, type: 'هتل', tags: ['هتل فوق لوکس', 'سعادت آباد'], isSnapp: true, snappId: '301', logo: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=100&h=100&fit=crop' },
+  { id: 55, name: 'هما', city: 'شیراز', status: 'منتشر شده', stars: 4, rating: 4.1, type: 'هتل', tags: ['هتل با باغ زیبا', 'نزدیک حافظیه'], isSnapp: false, snappId: '-', logo: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=100&h=100&fit=crop' },
+  { id: 54, name: 'قصر طلایی', city: 'مشهد', status: 'منتشر شده', stars: 5, rating: 4.7, type: 'هتل', tags: ['هتل مجلل', 'نزدیک حرم مطهر'], isSnapp: true, snappId: '512', logo: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=100&h=100&fit=crop' },
+  { id: 53, name: 'لاله', city: 'تهران', status: 'پیش‌نویس', stars: 4, rating: 3.9, type: 'هتل', tags: ['هتل بین‌المللی', 'مرکز تهران'], isSnapp: false, snappId: '-', logo: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=100&h=100&fit=crop' },
+  { id: 52, name: 'پارسیان آزادی', city: 'تهران', status: 'منتشر شده', stars: 5, rating: 4.6, type: 'هتل', tags: ['هتل مدرن', 'شمال تهران'], isSnapp: true, snappId: '890', logo: 'https://images.unsplash.com/photo-1591088398332-8a7791972843?w=100&h=100&fit=crop' },
 ];
 
 interface HotelManagementProps {
@@ -58,7 +58,6 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
   const [selectedStar, setSelectedStar] = useState('همه');
   const [selectedType, setSelectedType] = useState('همه');
   const [hotels, setHotels] = useState<HotelItem[]>(initialHotelsData);
-  const [selectedHotels, setSelectedHotels] = useState<number[]>([]);
   const itemsPerPage = 10;
 
   const filteredHotels = useMemo(() => {
@@ -92,20 +91,6 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
 
   const handleSnappSync = (name: string) => {
     onShowToast(`اتاق‌ها و اطلاعات هتل "${name}" از اسنپ‌تریپ با موفقیت به‌روزرسانی شد.`, 'success');
-  };
-
-  const toggleSelectAll = () => {
-    if (selectedHotels.length === currentHotels.length) {
-      setSelectedHotels([]);
-    } else {
-      setSelectedHotels(currentHotels.map(h => h.id));
-    }
-  };
-
-  const toggleSelectHotel = (id: number) => {
-    setSelectedHotels(prev => 
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
   };
 
   return (
@@ -250,19 +235,11 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
             )}
           </div>
 
-          {/* جدول هتل‌ها */}
+          {/* جدول هتل‌ها (بدون ستون تیک/چک‌باکس و با لوگوی بزرگ‌تر) */}
           <div className="overflow-x-auto flex-1 border border-gray-200 dark:border-gray-700 rounded-xl">
             <table className="w-full text-right border-collapse">
               <thead>
                 <tr className="bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 text-[11px] font-bold border-b border-gray-200 dark:border-gray-700">
-                  <th className="p-3 w-10 text-center">
-                    <input
-                      type="checkbox"
-                      checked={selectedHotels.length === currentHotels.length && currentHotels.length > 0}
-                      onChange={toggleSelectAll}
-                      className="rounded border-gray-300 text-[#6644F0] focus:ring-[#6644F0]"
-                    />
-                  </th>
                   <th className="p-3">ID</th>
                   <th className="p-3">نام هتل</th>
                   <th className="p-3">شهر</th>
@@ -282,14 +259,6 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                 {currentHotels.length > 0 ? (
                   currentHotels.map((hotel) => (
                     <tr key={hotel.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
-                      <td className="p-3 text-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedHotels.includes(hotel.id)}
-                          onChange={() => toggleSelectHotel(hotel.id)}
-                          className="rounded border-gray-300 text-[#6644F0] focus:ring-[#6644F0]"
-                        />
-                      </td>
                       <td className="p-3 font-semibold text-gray-500 dark:text-gray-400">{hotel.id}</td>
                       <td className="p-3 font-bold text-gray-900 dark:text-gray-100 whitespace-nowrap">{hotel.name}</td>
                       <td className="p-3 whitespace-nowrap">{hotel.city}</td>
@@ -320,7 +289,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                       {/* شناسه اسنپ */}
                       <td className="p-3 text-center font-mono text-gray-500">{hotel.snappId}</td>
 
-                      {/* عملیات اسنپ (بدون چک‌باکس، دکمه بروزرسانی) */}
+                      {/* عملیات اسنپ (دکمه بروزرسانی) */}
                       <td className="p-3 whitespace-nowrap">
                         <button
                           onClick={() => handleSnappSync(hotel.name)}
@@ -331,8 +300,9 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                         </button>
                       </td>
 
+                      {/* لوگوی بزرگ‌تر */}
                       <td className="p-3">
-                        <img src={hotel.logo} alt={hotel.name} className="w-8 h-8 rounded-lg object-cover border border-gray-200 dark:border-gray-600" />
+                        <img src={hotel.logo} alt={hotel.name} className="w-14 h-14 rounded-xl object-cover border border-gray-200 dark:border-gray-600 shadow-xs" />
                       </td>
 
                       {/* تگ‌های جداگانه با استایل مربع حاشیه گرد، استروک و بک‌گراند بنفش */}
@@ -363,7 +333,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={14} className="text-center py-12 text-gray-400">
+                    <td colSpan={13} className="text-center py-12 text-gray-400">
                       هتلی با این مشخصات یافت نشد.
                     </td>
                   </tr>
