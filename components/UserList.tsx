@@ -70,7 +70,7 @@ const StatusBadge: React.FC<{ status: ReservationStatus | LegalRequestStatus }> 
 };
 
 // کامپوننت برای نمایش یک ردیف از لیست رزروها
-const ReservationRow: React.FC<{ reservation: Reservation; onDelete: () => void; }> = ({ reservation, onDelete }) => {
+const ReservationRow: React.FC<{ reservation: Reservation; onDelete: () => void; onNavigate?: (view: string, user: User) => void; }> = ({ reservation, onDelete, onNavigate }) => {
     return (
         <>
             {/* نمای کارت برای موبایل */}
@@ -89,7 +89,16 @@ const ReservationRow: React.FC<{ reservation: Reservation; onDelete: () => void;
                     <p><strong className="font-semibold text-gray-700 dark:text-gray-300">تاریخ: </strong> <span>{reservation.dateRange}</span></p>
                     <p><strong className="font-semibold text-gray-700 dark:text-gray-300">کد پیگیری: </strong> {reservation.trackingCode}</p>
                 </div>
-                <div className="flex items-center justify-end gap-2 mt-4">
+                <div className="flex flex-wrap items-center justify-end gap-2 mt-4">
+                    {onNavigate && (
+                        <button 
+                            type="button"
+                            onClick={() => onNavigate('User Profile', reservation.user)}
+                            className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold py-2 px-3 rounded-lg text-xs whitespace-nowrap hover:bg-[#353535] dark:hover:bg-gray-600 hover:text-white transition-colors"
+                        >
+                            مشاهده پروفایل کاربر
+                        </button>
+                    )}
                     <button className="bg-[#353535] dark:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-xs whitespace-nowrap hover:bg-opacity-90 dark:hover:bg-opacity-80">
                         مشاهده جزئیات
                     </button>
@@ -100,7 +109,7 @@ const ReservationRow: React.FC<{ reservation: Reservation; onDelete: () => void;
             </div>
             
             {/* نمای ردیف جدول برای دسکتاپ */}
-            <div className="hidden lg:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_1fr_2fr] items-center py-3 border-gray-200 dark:border-gray-700 border-b last:border-b-0 text-sm text-gray-700 dark:text-gray-300">
+            <div className="hidden lg:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_1fr_2.5fr] items-center py-3 border-gray-200 dark:border-gray-700 border-b last:border-b-0 text-sm text-gray-700 dark:text-gray-300">
                 <div className="text-center px-2">
                      <p className="font-semibold whitespace-nowrap text-gray-800 dark:text-gray-200">{reservation.user.name}</p>
                      <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -114,6 +123,15 @@ const ReservationRow: React.FC<{ reservation: Reservation; onDelete: () => void;
                     <StatusBadge status={reservation.status}/>
                 </div>
                 <div className="flex items-center justify-end gap-2 px-2">
+                    {onNavigate && (
+                        <button 
+                            type="button"
+                            onClick={() => onNavigate('User Profile', reservation.user)}
+                            className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold py-2 px-3 rounded-lg text-xs whitespace-nowrap hover:bg-[#353535] dark:hover:bg-gray-600 hover:text-white transition-colors"
+                        >
+                            مشاهده پروفایل کاربر
+                        </button>
+                    )}
                     <button className="bg-[#353535] dark:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg text-xs whitespace-nowrap hover:bg-opacity-90 dark:hover:bg-opacity-80">
                         مشاهده جزئیات
                     </button>
@@ -127,17 +145,17 @@ const ReservationRow: React.FC<{ reservation: Reservation; onDelete: () => void;
 }
 
 // کامپوننت برای نمایش جدول رزروها
-const ReservationTable: React.FC<{ reservations: Reservation[]; onOpenDeleteModal: (reservation: Reservation) => void; }> = ({ reservations, onOpenDeleteModal }) => {
+const ReservationTable: React.FC<{ reservations: Reservation[]; onOpenDeleteModal: (reservation: Reservation) => void; onNavigate?: (view: string, user: User) => void; }> = ({ reservations, onOpenDeleteModal, onNavigate }) => {
     const headers = ['کاربر', 'نام هتل', 'تاریخ ورود / خروج', 'کد پیگیری', 'وضعیت'];
     return (
         <div>
             {/* هدر جدول (فقط دسکتاپ) */}
-            <div className="hidden lg:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_1fr_2fr] items-center px-2 py-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-sm font-semibold text-gray-500 dark:text-gray-400">
+            <div className="hidden lg:grid grid-cols-[2fr_1.5fr_1.5fr_1fr_1fr_2.5fr] items-center px-2 py-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg text-sm font-semibold text-gray-500 dark:text-gray-400">
                 {headers.map((header) => <div key={header} className="text-center px-2">{header}</div>)}
                 <div className="text-left px-2"></div>
             </div>
             <div>
-                {reservations.map(res => <ReservationRow key={res.id} reservation={res} onDelete={() => onOpenDeleteModal(res)} />)}
+                {reservations.map(res => <ReservationRow key={res.id} reservation={res} onDelete={() => onOpenDeleteModal(res)} onNavigate={onNavigate} />)}
             </div>
         </div>
     )
@@ -227,7 +245,7 @@ const UserList: React.FC<UserListProps> = ({ users, reservations, legalRequests,
             case 'لیست درخواست پروفایل حقوقی':
                 return <LegalRequestTable requests={legalRequests} />;
             case 'لیست رزروهای جدید':
-                return <ReservationTable reservations={reservations} onOpenDeleteModal={onOpenDeleteModal!} />;
+                return <ReservationTable reservations={reservations} onOpenDeleteModal={onOpenDeleteModal!} onNavigate={onNavigate} />;
             default:
                 return users.map((user) => <UserRow key={user.id} user={user} onNavigate={onNavigate} />);
         }
