@@ -1,6 +1,16 @@
 
 import React from 'react';
-import { Home2, Bank, ClipboardText, Profile2User, Headphone, Notification, ReceiptDisscount, WalletMoney, ColorSwatch } from 'iconsax-reactjs';
+import { Home2, Bank, ClipboardText, Profile2User, Headphone, Notification, ReceiptDisscount, WalletMoney, ColorSwatch, Setting2 } from 'iconsax-reactjs';
+
+export const Setting2Icon: React.FC<{ className?: string; isActive?: boolean }> = ({ className = "w-6 h-6", isActive }) => (
+    <div className={`${className} flex items-center justify-center transition-colors [&>svg]:w-full [&>svg]:h-full`}>
+        <Setting2 
+            size="24" 
+            color={isActive ? "white" : "currentColor"} 
+            variant={isActive ? "Bold" : "Outline"} 
+        />
+    </div>
+);
 
 export const HomeIcon: React.FC<{ className?: string }> = ({ className = "w-6 h-6" }) => (
   <Home2 className={className} size="24" color="currentColor" />

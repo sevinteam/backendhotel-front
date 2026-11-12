@@ -18,7 +18,8 @@ import {
   Home2Icon,
   BankIcon,
   ClipboardTextIcon,
-  Profile2UserIcon
+  Profile2UserIcon,
+  Setting2Icon
 } from './icons';
 import type { NavItemType } from '../types';
 
@@ -70,6 +71,8 @@ const NavItem: React.FC<{ item: NavItemType; isActive: boolean; onClick: () => v
                 <CreditCardIcon className="w-5 h-5 transition-colors" isActive={isActive} />
             ) : item.name === 'مدیریت مقالات وبسایت' ? (
                 <DocumentTextIcon className="w-5 h-5 transition-colors" isActive={isActive} />
+            ) : item.name === 'تنظیمات محتوای وب سایت' || item.name === 'تنظیمات ادمین' ? (
+                <Setting2Icon className="w-5 h-5 transition-colors" isActive={isActive} />
             ) : (
                 <item.icon className="w-5 h-5" />
             )}
@@ -90,9 +93,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onClose, them
   // آیتم‌های منوی تنظیمات
   const settingsNavItems: NavItemType[] = [
     { name: 'پیام‌های تماس با ما', icon: ChatAltIcon, badgeCount: unreadContactMessages },
-    { name: 'تنظیمات محتوای وب سایت', icon: CogIcon },
+    { name: 'تنظیمات محتوای وب سایت', icon: Setting2Icon },
     { name: 'مدیریت تسک ادمین ها', icon: ClipboardListIcon },
-    { name: 'تنظیمات ادمین', icon: CogIcon },
+    { name: 'تنظیمات ادمین', icon: Setting2Icon },
   ];
 
   const handleNavigateClick = (view: string) => {
