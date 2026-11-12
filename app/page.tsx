@@ -17,6 +17,7 @@ import NotificationManagement from '@/components/NotificationManagement';
 import ContactMessages from '@/components/ContactMessages';
 import WebsiteSettings from '@/components/WebsiteSettings';
 import UserChatManagement from '@/components/UserChatManagement';
+import HotelManagement from '@/components/HotelManagement';
 import ApiService from '@/src/apiService';
 
 // داده‌های اولیه برای پیام‌های تماس با ما
@@ -268,6 +269,8 @@ export default function AdminApp() {
         return <WebsiteSettings onShowToast={addToast} />;
       case 'مدیریت چت های کاربران':
         return <UserChatManagement theme={theme} onShowToast={addToast} />;
+      case 'مدیریت هتل و اتاق ها':
+        return <HotelManagement onShowToast={addToast} theme={theme} />;
       default:
         const userToShow = openUserProfiles.find((u: User) => u.name === activeView);
         if (userToShow) {
