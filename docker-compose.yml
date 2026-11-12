@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: .
+    container_name: safarnameh24_frontend
+    restart: always
+    ports:
+      - "3002:3002"
+    environment:
+      - PORT=3002
+      - NODE_ENV=production
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,8 @@
+{
+  "name": "پنل مدیریت رزرواسیون هتل",
+  "description": "پنل مدیریت پیشرفته رزرواسیون هتل، کاربران، تراکنش‌ها، پیام‌ها و تنظیمات سایت سفرنامه ۲۴",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
