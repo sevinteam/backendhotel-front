@@ -155,7 +155,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                   setCurrentPage(1);
                 }}
                 placeholder="جستجو نام هتل، شهر یا تگ..."
-                className="w-full pr-9 pl-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                className="w-full pr-9 pl-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6644F0] shadow-2xs transition-all"
               />
             </div>
 
