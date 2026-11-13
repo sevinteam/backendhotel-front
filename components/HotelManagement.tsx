@@ -3,37 +3,20 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { BankIcon, DocumentTextIcon, SearchIcon, PlusIcon, TrashIcon, RefreshIcon, ShieldTickIcon, ShieldCrossIcon } from './icons';
 import Pagination from './Pagination';
-
-interface HotelItem {
-  id: number;
-  name: string;
-  city: string;
-  status: 'منتشر شده' | 'پیش‌نویس';
-  stars: number;
-  type: string;
-  tags: string[];
-  isSnapp: boolean;
-  snappId?: string | number;
-  logo?: string;
-}
-
-const initialHotelsData: HotelItem[] = [
-  { id: 66, name: 'مهرگان', city: 'تهران', status: 'منتشر شده', stars: 2, type: 'هتل آپارتمان', tags: ['هتل اقتصادی', 'نزدیک به کلیسای مقدس'], isSnapp: true, snappId: '48' },
-  { id: 65, name: 'لولاگر (گودو)', city: 'تهران', status: 'منتشر شده', stars: 1, type: 'اقامتگاه سنتی', tags: ['هتل اقتصادی', 'مهمانپذیر درجه ۱'], isSnapp: false, snappId: '-' },
-  { id: 64, name: 'زیبا', city: 'تهران', status: 'منتشر شده', stars: 2, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به سفارت آلمان'], isSnapp: true, snappId: '436' },
-  { id: 63, name: 'مینا', city: 'تهران', status: 'منتشر شده', stars: 2, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به دروازه دولت'], isSnapp: true, snappId: '2766' },
-  { id: 62, name: 'خانواده', city: 'تهران', status: 'منتشر شده', stars: 1, type: 'مهمانپذیر', tags: ['هتل اقتصادی', 'نزدیک به موزه عبرت'], isSnapp: false, snappId: '-' },
-  { id: 61, name: 'بابا طاهر', city: 'تهران', status: 'منتشر شده', stars: 3, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به میدان فردوسی'], isSnapp: true, snappId: '55' },
-  { id: 60, name: 'آسیا', city: 'تهران', status: 'منتشر شده', stars: 1, type: 'هتل', tags: ['هتل اقتصادی', 'نزدیک به چهارراه ولیعصر'], isSnapp: true, snappId: '434' },
-  { id: 59, name: 'سیمرغ', city: 'شیراز', status: 'منتشر شده', stars: 4, type: 'هتل', tags: ['لوکس', 'نزدیک حافظیه'], isSnapp: true, snappId: '112' },
-  { id: 58, name: 'کوروش', city: 'اصفهان', status: 'منتشر شده', stars: 3, type: 'هتل', tags: ['نزدیک سی‌وسه‌پل'], isSnapp: true, snappId: '305' },
-  { id: 57, name: 'داریوش', city: 'کیش', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['ساحلی', 'لوکس'], isSnapp: true, snappId: '99' },
-  { id: 56, name: 'هما', city: 'مشهد', status: 'منتشر شده', stars: 4, type: 'هتل', tags: ['نزدیک حرم'], isSnapp: true, snappId: '210' },
-  { id: 55, name: 'اسپیناس پالاس', city: 'تهران', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['فوق لوکس', 'سعادت‌آباد'], isSnapp: true, snappId: '101' },
-  { id: 54, name: 'پردیسان', city: 'مشهد', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['ییلاقی', 'لوکس'], isSnapp: true, snappId: '202' },
-  { id: 53, name: 'عباسی', city: 'اصفهان', status: 'منتشر شده', stars: 5, type: 'اقامتگاه سنتی', tags: ['تاریخی', 'چهارباغ'], isSnapp: true, snappId: '333' },
-  { id: 52, name: 'پارسیان آزادی', city: 'تهران', status: 'منتشر شده', stars: 5, type: 'هتل', tags: ['هتل مدرن', 'شمال تهران'], isSnapp: true, snappId: '890' },
-];
+import ConfirmationModal from './ConfirmationModal';
+import HotelEditor from './hotel/HotelEditor';
+import { HotelItem, FacilityOption, LogoOption } from './hotel/hotelTypes';
+import {
+  initialHotelsData,
+  cityOptions,
+  typeOptions,
+  initialTagOptions,
+  initialHotelFacilities,
+  initialRoomFacilities,
+  initialLogoOptions,
+  initialRoomServices,
+  createEmptyHotel,
+} from './hotel/hotelData';
 
 interface CustomDropdownProps {
   value: string;
@@ -129,7 +112,7 @@ interface HotelManagementProps {
   theme: string;
 }
 
-const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme }) => {
+const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast }) => {
   const tabs = [
     'لیست هتل‌ها',
     'مدیریت اتاق‌ها',
@@ -145,44 +128,29 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
   const [selectedCity, setSelectedCity] = useState('همه');
   const [selectedType, setSelectedType] = useState('همه');
   const [hotels, setHotels] = useState<HotelItem[]>(initialHotelsData);
+
+  // کاتالوگ‌های قابل افزایش در فرم ویرایش/افزودن هتل
+  const [availableTags, setAvailableTags] = useState<string[]>(initialTagOptions);
+  const [availableHotelFacilities, setAvailableHotelFacilities] = useState<FacilityOption[]>(initialHotelFacilities);
+  const [availableRoomFacilities, setAvailableRoomFacilities] = useState<FacilityOption[]>(initialRoomFacilities);
+  const [availableLogos, setAvailableLogos] = useState<LogoOption[]>(initialLogoOptions);
+  const [availableRoomServices, setAvailableRoomServices] = useState<string[]>(initialRoomServices);
+
+  // وضعیت نمایش بخش ویرایش یا افزودن هتل
+  const [editorState, setEditorState] = useState<{
+    mode: 'list' | 'edit' | 'create';
+    hotel: HotelItem | null;
+  }>({ mode: 'list', hotel: null });
+
   const itemsPerPage = 10;
-
-  const cityOptions = [
-    { label: 'همه شهرها', value: 'همه' },
-    { label: 'تهران', value: 'تهران' },
-    { label: 'شیراز', value: 'شیراز' },
-    { label: 'اصفهان', value: 'اصفهان' },
-    { label: 'کیش', value: 'کیش' },
-    { label: 'مشهد', value: 'مشهد' },
-    { label: 'تبریز', value: 'تبریز' },
-    { label: 'رشت', value: 'رشت' },
-    { label: 'مازندران', value: 'مازندران' },
-    { label: 'قم', value: 'قم' },
-    { label: 'کرمان', value: 'کرمان' },
-    { label: 'یزد', value: 'یزد' },
-    { label: 'اهواز', value: 'اهواز' },
-    { label: 'قشم', value: 'قشم' },
-    { label: 'رامسر', value: 'رامسر' },
-  ];
-
-  const typeOptions = [
-    { label: 'همه نوع اقامتگاه‌ها', value: 'همه' },
-    { label: 'هتل', value: 'هتل' },
-    { label: 'هتل آپارتمان', value: 'هتل آپارتمان' },
-    { label: 'اقامتگاه سنتی', value: 'اقامتگاه سنتی' },
-    { label: 'مهمانپذیر', value: 'مهمانپذیر' },
-    { label: 'ویلا', value: 'ویلا' },
-    { label: 'بوم‌گردی', value: 'بوم‌گردی' },
-    { label: 'سوئیت', value: 'سوئیت' },
-    { label: 'متل', value: 'متل' },
-    { label: 'هاستل', value: 'هاستل' },
-  ];
 
   const filteredHotels = useMemo(() => {
     return hotels.filter(hotel => {
-      const matchesSearch = !searchQuery.trim() || 
+      const matchesSearch =
+        !searchQuery.trim() ||
         hotel.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
         hotel.city.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
+        String(hotel.id).includes(searchQuery.trim()) ||
         hotel.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase().trim()));
 
       const matchesCity = selectedCity === 'همه' || hotel.city === selectedCity;
@@ -192,23 +160,86 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
     });
   }, [hotels, searchQuery, selectedCity, selectedType]);
 
-  const totalPages = Math.ceil(filteredHotels.length / itemsPerPage);
-  
-  const currentHotels = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return filteredHotels.slice(start, start + itemsPerPage);
-  }, [filteredHotels, currentPage]);
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; hotel: HotelItem | null }>({
+    isOpen: false,
+    hotel: null,
+  });
 
-  const handleDeleteHotel = (id: number, name: string) => {
-    if (confirm(`آیا از حذف هتل "${name}" اطمینان دارید؟`)) {
-      setHotels(prev => prev.filter(h => h.id !== id));
-      onShowToast(`هتل "${name}" با موفقیت حذف شد.`, 'success');
+  const totalPages = Math.max(1, Math.ceil(filteredHotels.length / itemsPerPage));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const currentHotels = useMemo(() => {
+    const start = (safeCurrentPage - 1) * itemsPerPage;
+    return filteredHotels.slice(start, start + itemsPerPage);
+  }, [filteredHotels, safeCurrentPage]);
+
+  const handleOpenEditHotel = (hotel: HotelItem) => {
+    setEditorState({ mode: 'edit', hotel });
+  };
+
+  const handleOpenCreateHotel = () => {
+    const maxId = hotels.reduce((max, h) => (h.id > max ? h.id : max), 66);
+    setEditorState({ mode: 'create', hotel: createEmptyHotel(maxId + 1) });
+  };
+
+  const handleSaveHotel = (savedHotel: HotelItem) => {
+    if (editorState.mode === 'create') {
+      setHotels(prev => [savedHotel, ...prev]);
+      onShowToast(`هتل «${savedHotel.name}» با موفقیت ثبت شد.`, 'success');
+    } else {
+      setHotels(prev => prev.map(h => (h.id === savedHotel.id ? savedHotel : h)));
+      onShowToast(`تغییرات هتل «${savedHotel.name}» با موفقیت ذخیره شد.`, 'success');
+    }
+    setEditorState({ mode: 'list', hotel: null });
+  };
+
+  const handleOpenDeleteModal = (hotel: HotelItem) => {
+    setDeleteModal({ isOpen: true, hotel });
+  };
+
+  const handleConfirmDelete = () => {
+    if (deleteModal.hotel) {
+      const hotelName = deleteModal.hotel.name;
+      setHotels(prev => prev.filter(h => h.id !== deleteModal.hotel!.id));
+      onShowToast(`هتل "${hotelName}" با موفقیت حذف شد.`, 'success');
+      setDeleteModal({ isOpen: false, hotel: null });
     }
   };
 
   const handleSnappSync = (name: string) => {
     onShowToast(`اتاق‌ها و اطلاعات هتل "${name}" از اسنپ‌تریپ با موفقیت به‌روزرسانی شد.`, 'success');
   };
+
+  // نمایش فرم ویرایش / افزودن هتل
+  if (editorState.mode !== 'list' && editorState.hotel) {
+    return (
+      <HotelEditor
+        initialHotel={editorState.hotel}
+        isCreating={editorState.mode === 'create'}
+        availableTags={availableTags}
+        availableHotelFacilities={availableHotelFacilities}
+        availableRoomFacilities={availableRoomFacilities}
+        availableLogos={availableLogos}
+        availableRoomServices={availableRoomServices}
+        onAddTagOption={title =>
+          setAvailableTags(prev => (prev.includes(title) ? prev : [title, ...prev]))
+        }
+        onAddHotelFacilityOption={opt =>
+          setAvailableHotelFacilities(prev => [opt, ...prev])
+        }
+        onAddRoomFacilityOption={opt =>
+          setAvailableRoomFacilities(prev => [opt, ...prev])
+        }
+        onAddLogoOption={opt => setAvailableLogos(prev => [opt, ...prev])}
+        onAddRoomServiceOption={svc =>
+          setAvailableRoomServices(prev => (prev.includes(svc) ? prev : [svc, ...prev]))
+        }
+        onSave={handleSaveHotel}
+        onCancel={() => setEditorState({ mode: 'list', hotel: null })}
+        onShowToast={onShowToast}
+      />
+    );
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col flex-1 overflow-hidden p-6">
@@ -220,11 +251,12 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
           </div>
           <div>
             <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100">مدیریت هتل و اتاق‌ها</h1>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">مدیریت جامع هتل‌ها، اتاق‌ها، امکانات و گالری تصاویر</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">مدیریت جامع هتل‌ها، اتاق‌ها، امکانات و سئو صفحات هتل</p>
           </div>
         </div>
         <button
-          onClick={() => onShowToast('فرم افزودن هتل جدید باز شد', 'success')}
+          type="button"
+          onClick={handleOpenCreateHotel}
           className="bg-[#6644F0] hover:bg-[#5533E0] text-white text-xs font-bold py-2.5 px-4 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
         >
           <PlusIcon className="w-4 h-4" />
@@ -233,17 +265,18 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
       </div>
 
       {/* تب‌های ناوبری */}
-      <div className="flex overflow-x-auto gap-2 py-4 border-b border-gray-100 dark:border-gray-700 scrollbar-none">
+      <div className="flex flex-wrap items-center gap-2 py-4 border-b border-gray-100 dark:border-gray-700">
         {tabs.map((tab) => {
           const isActive = activeTab === tab;
           return (
             <button
               key={tab}
+              type="button"
               onClick={() => {
                 setActiveTab(tab);
                 setCurrentPage(1);
               }}
-              className={`px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+              className={`px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
                 isActive
                   ? 'bg-[#6644F0] text-white shadow-sm'
                   : 'bg-gray-50 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -272,12 +305,12 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                placeholder="جستجو نام هتل، شهر یا تگ..."
+                placeholder="جستجو نام هتل، شناسه، شهر یا تگ..."
                 className="w-full pr-9 pl-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#6644F0] shadow-2xs transition-all"
               />
             </div>
 
-            {/* فیلتر شهر با منوی سفارشی و جستجو */}
+            {/* فیلتر شهر */}
             <div>
               <CustomDropdown
                 value={selectedCity}
@@ -291,7 +324,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
               />
             </div>
 
-            {/* فیلتر نوع اقامتگاه با منوی سفارشی و جستجو */}
+            {/* فیلتر نوع اقامتگاه */}
             <div>
               <CustomDropdown
                 value={selectedType}
@@ -307,9 +340,14 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
           </div>
 
           <div className="flex items-center justify-between mb-3 text-xs text-gray-500 dark:text-gray-400 px-1">
-            <span>مجموع هتل‌های یافت شده: <strong className="text-gray-800 dark:text-gray-200">{filteredHotels.length}</strong> مورد</span>
+            <span>
+              مجموع هتل‌های یافت شده:{' '}
+              <strong className="text-gray-800 dark:text-gray-200 tabular-nums">{filteredHotels.length}</strong> مورد
+              <span className="hidden sm:inline text-gray-400 mr-2">· برای ویرایش روی شناسه یا نام هتل کلیک کنید</span>
+            </span>
             {(selectedCity !== 'همه' || selectedType !== 'همه' || searchQuery) && (
               <button
+                type="button"
                 onClick={() => {
                   setSelectedCity('همه');
                   setSelectedType('همه');
@@ -345,15 +383,33 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                 {currentHotels.length > 0 ? (
                   currentHotels.map((hotel) => (
                     <tr key={hotel.id} className="hover:bg-gray-50/80 dark:hover:bg-gray-700/30 transition-colors">
-                      <td className="p-3 font-mono text-gray-500 dark:text-gray-400">{hotel.id}</td>
-                      <td className="p-3 font-bold text-gray-800 dark:text-gray-100">{hotel.name}</td>
+                      <td
+                        onClick={() => handleOpenEditHotel(hotel)}
+                        className="p-3 font-mono tabular-nums cursor-pointer text-[#6644F0] dark:text-violet-300 font-bold hover:underline"
+                        title={`ویرایش هتل ${hotel.name}`}
+                      >
+                        {hotel.id}
+                      </td>
+                      <td
+                        onClick={() => handleOpenEditHotel(hotel)}
+                        className="p-3 font-bold text-gray-800 dark:text-gray-100 cursor-pointer hover:text-[#6644F0] dark:hover:text-violet-300 transition-colors"
+                        title={`ویرایش هتل ${hotel.name}`}
+                      >
+                        {hotel.name}
+                      </td>
                       <td className="p-3 text-gray-600 dark:text-gray-300">{hotel.city}</td>
                       <td className="p-3">
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
+                        <span
+                          className={`text-xs font-semibold ${
+                            hotel.status === 'منتشر شده'
+                              ? 'text-emerald-600 dark:text-emerald-400'
+                              : 'text-amber-600 dark:text-amber-400'
+                          }`}
+                        >
                           {hotel.status}
                         </span>
                       </td>
-                      <td className="p-3 text-center font-medium">{hotel.stars} ستاره</td>
+                      <td className="p-3 text-center font-medium tabular-nums">{hotel.stars} ستاره</td>
                       <td className="p-3 text-gray-600 dark:text-gray-300">{hotel.type}</td>
                       <td className="p-3 text-center">
                         {hotel.isSnapp ? (
@@ -362,9 +418,9 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                           <ShieldCrossIcon className="w-5 h-5 mx-auto" />
                         )}
                       </td>
-                      <td className="p-3 text-center font-mono">
-                        {hotel.snappId !== '-' ? (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold bg-violet-50 dark:bg-violet-950/50 text-[#6644F0] dark:text-violet-300 border border-violet-200 dark:border-violet-800 shadow-2xs">
+                      <td className="p-3 text-center font-mono tabular-nums">
+                        {hotel.snappId && hotel.snappId !== '-' ? (
+                          <span className="font-bold text-red-600 dark:text-red-500">
                             {hotel.snappId}
                           </span>
                         ) : (
@@ -375,25 +431,32 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
                         <button
                           type="button"
                           onClick={() => handleSnappSync(hotel.name)}
-                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-medium transition-colors shadow-2xs flex items-center gap-1"
+                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-medium transition-colors shadow-2xs flex items-center gap-1 whitespace-nowrap"
                         >
                           <RefreshIcon className="w-3.5 h-3.5" />
                           <span>دریافت اتاق‌ها از اسنپ</span>
                         </button>
                       </td>
                       <td className="p-3">
-                        <div className="flex flex-wrap gap-1">
-                          {hotel.tags.map((tag, i) => (
-                            <span key={i} className="px-2.5 py-1 rounded-lg text-[10px] font-medium bg-violet-50 dark:bg-violet-950/50 text-[#6644F0] dark:text-violet-300 border border-violet-200 dark:border-violet-800 shadow-2xs">
-                              {tag}
-                            </span>
-                          ))}
+                        <div className="flex flex-wrap items-center gap-1.5 min-w-[160px] max-w-[240px]">
+                          {hotel.tags.length > 0 ? (
+                            hotel.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center px-2.5 py-1 rounded-lg bg-violet-50 dark:bg-violet-950/60 border border-[#6644F0]/60 dark:border-violet-600 text-[#5533E0] dark:text-violet-300 text-[11px] font-bold whitespace-nowrap"
+                              >
+                                {tag}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-500">—</span>
+                          )}
                         </div>
                       </td>
                       <td className="p-3 text-center">
                         <button
                           type="button"
-                          onClick={() => handleDeleteHotel(hotel.id, hotel.name)}
+                          onClick={() => handleOpenDeleteModal(hotel)}
                           className="w-8 h-8 bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 rounded-lg transition-colors inline-flex items-center justify-center shadow-2xs"
                           title="حذف هتل"
                         >
@@ -417,7 +480,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
           {totalPages > 1 && (
             <div className="pt-4 border-t border-gray-100 dark:border-gray-700 mt-4">
               <Pagination
-                currentPage={currentPage}
+                currentPage={safeCurrentPage}
                 totalPages={totalPages}
                 onPageChange={(page) => setCurrentPage(page)}
               />
@@ -433,6 +496,23 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast, theme })
           <p className="text-xs text-gray-400 dark:text-gray-500 max-w-sm">این بخش به زودی فعال خواهد شد. تمامی اطلاعات این تب نیز در پایگاه داده مدیریت می‌شود.</p>
         </div>
       )}
+
+      {/* مودال تایید حذف هتل */}
+      <ConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, hotel: null })}
+        onConfirm={handleConfirmDelete}
+        title="آیا از حذف این هتل مطمئن هستید؟"
+        message={
+          <>
+            آیا از حذف هتل{' '}
+            <strong className="font-bold text-gray-800 dark:text-gray-200">
+              {deleteModal.hotel?.name}
+            </strong>{' '}
+            اطمینان دارید؟ این عمل غیرقابل بازگشت خواهد بود.
+          </>
+        }
+      />
     </div>
   );
 };

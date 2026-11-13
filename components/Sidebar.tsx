@@ -113,8 +113,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onNavigate, onClose, them
         {/* هدر سایدبار */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3">
             <div className='flex items-center gap-3'>
-                <BrandLogoIcon className="w-14 h-14"/>
-                <h1 className="text-md font-semibold text-gray-700 dark:text-gray-300">پنل ادمین سفرنامه 24</h1>
+                <BrandLogoIcon className="w-11 h-11" imgClassName="w-8 h-8"/>
+                <h1 className="text-sm font-semibold text-gray-700 dark:text-gray-300">پنل ادمین سفرنامه 24</h1>
             </div>
              {/* دکمه بستن برای نمای موبایل */}
              <button

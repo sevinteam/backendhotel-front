@@ -253,12 +253,17 @@ export const LogoIcon: React.FC<{ className?: string }> = ({ className = "w-6 h-
     </svg>
 );
 
-export const BrandLogoIcon: React.FC<{ className?: string }> = ({ className = "w-9 h-9" }) => (
-    <img 
-        src="/logo.png" 
-        alt="Logo" 
-        className={`${className} object-cover rounded-xl shadow-md`} 
-    />
+export const BrandLogoIcon: React.FC<{ className?: string; imgClassName?: string }> = ({ 
+    className = "w-10 h-10", 
+    imgClassName = "w-6 h-6" 
+}) => (
+    <div className={`${className} bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-xl flex items-center justify-center p-1.5 shadow-xs overflow-hidden shrink-0`}>
+        <img 
+            src="/logo.png" 
+            alt="Logo" 
+            className={`${imgClassName} object-contain`} 
+        />
+    </div>
 );
 
 
