@@ -10,7 +10,7 @@ export default function NotFound() {
           آدرس وارد شده اشتباه است یا صفحه به مکان دیگری منتقل شده است.
         </p>
         <Link
-          href="/"
+          href="/dashboard"
           className="inline-block px-5 py-2.5 bg-[#417690] hover:bg-[#264b5d] text-white font-medium rounded-lg transition-colors text-sm shadow"
         >
           بازگشت به پنل اصلی

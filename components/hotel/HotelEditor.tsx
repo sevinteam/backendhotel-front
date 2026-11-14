@@ -13,7 +13,6 @@ import {
   Plus,
   Trash2,
   X,
-  Star,
   Clock,
   MapPin,
   Calendar,
@@ -25,8 +24,13 @@ import {
   Search,
   Sparkles,
   Check,
+  Eye,
 } from 'lucide-react';
-import { Tag as IconsaxTag, HomeTrendUp as IconsaxHomeTrendUp } from 'iconsax-reactjs';
+import {
+  Tag as IconsaxTag,
+  HomeTrendUp as IconsaxHomeTrendUp,
+  Star1 as IconsaxStar1,
+} from 'iconsax-reactjs';
 import {
   HotelItem,
   FacilityOption,
@@ -46,6 +50,7 @@ import QuickAddOptionModal, { QuickAddMode } from './QuickAddOptionModal';
 import RoomPriceCalendarModal from './RoomPriceCalendarModal';
 import DualServiceSelector from './DualServiceSelector';
 import FilterStyleDropdown from './FilterStyleDropdown';
+import ImagePreviewModal from '../ImagePreviewModal';
 
 interface HotelEditorProps {
   initialHotel: HotelItem;
@@ -128,8 +133,9 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
     mode: null,
   });
 
-  // مودال تقویم و قیمت اتاق
+  // مودال تقویم و قیمت اتاق و پیش‌نمایش تصویر
   const [calendarRoomId, setCalendarRoomId] = useState<string | null>(null);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
   const [expandedRoomIds, setExpandedRoomIds] = useState<string[]>(() =>
     initialHotel.rooms.length > 0 ? [initialHotel.rooms[0].id] : []
   );
@@ -738,10 +744,13 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
                           className="p-0.5 transition-transform hover:scale-110"
                           title={`${st} ستاره`}
                         >
-                          <Star
+                          <IconsaxStar1
+                            size={16}
+                            color="currentColor"
+                            variant={st <= draft.stars ? 'Bold' : 'Outline'}
                             className={`w-4 h-4 ${
                               st <= draft.stars
-                                ? 'text-amber-400 fill-amber-400'
+                                ? 'text-amber-400'
                                 : 'text-gray-300 dark:text-gray-600'
                             }`}
                           />
@@ -1618,90 +1627,52 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
                 </button>
               </div>
 
-              <div className="overflow-x-auto border border-gray-200 dark:border-gray-700 rounded-xl">
-                <table className="w-full text-right border-collapse min-w-[780px]">
-                  <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 text-[11px] font-bold border-b border-gray-200 dark:border-gray-700">
-                      <th className="p-3">عنوان مکان</th>
-                      <th className="p-3">مسافت (متر)</th>
-                      <th className="p-3">با ماشین (دقیقه)</th>
-                      <th className="p-3">پیاده‌روی (دقیقه)</th>
-                      <th className="p-3">عرض جغرافیایی</th>
-                      <th className="p-3">طول جغرافیایی</th>
-                      <th className="p-3">عکس</th>
-                      <th className="p-3 text-center">حذف</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-xs">
-                    {draft.nearbyPlaces.length > 0 ? (
-                      draft.nearbyPlaces.map(place => (
-                        <tr key={place.id}>
-                          <td className="p-2.5">
-                            <input
-                              type="text"
-                              value={place.title}
-                              onChange={e => handleUpdateNearby(place.id, 'title', e.target.value)}
-                              placeholder="مثال: خانه هنرمندان"
-                              className="w-full px-2.5 py-2 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
-                            />
-                          </td>
-                          <td className="p-2.5">
-                            <input
-                              type="number"
-                              dir="ltr"
-                              value={place.distanceMeters}
-                              onChange={e =>
-                                handleUpdateNearby(place.id, 'distanceMeters', Number(e.target.value) || 0)
-                              }
-                              className="w-24 px-2.5 py-2 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
-                            />
-                          </td>
-                          <td className="p-2.5">
-                            <input
-                              type="number"
-                              dir="ltr"
-                              value={place.driveMinutes}
-                              onChange={e =>
-                                handleUpdateNearby(place.id, 'driveMinutes', Number(e.target.value) || 0)
-                              }
-                              className="w-20 px-2.5 py-2 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
-                            />
-                          </td>
-                          <td className="p-2.5">
-                            <input
-                              type="number"
-                              dir="ltr"
-                              value={place.walkMinutes}
-                              onChange={e =>
-                                handleUpdateNearby(place.id, 'walkMinutes', Number(e.target.value) || 0)
-                              }
-                              className="w-20 px-2.5 py-2 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
-                            />
-                          </td>
-                          <td className="p-2.5">
-                            <input
-                              type="text"
-                              dir="ltr"
-                              value={place.lat}
-                              onChange={e => handleUpdateNearby(place.id, 'lat', e.target.value)}
-                              placeholder="35.7105"
-                              className="w-28 px-2.5 py-2 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
-                            />
-                          </td>
-                          <td className="p-2.5">
-                            <input
-                              type="text"
-                              dir="ltr"
-                              value={place.lng}
-                              onChange={e => handleUpdateNearby(place.id, 'lng', e.target.value)}
-                              placeholder="51.4198"
-                              className="w-28 px-2.5 py-2 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-lg text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
-                            />
-                          </td>
-                          <td className="p-2.5">
-                            <label className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-[11px] font-semibold cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600">
-                              <Upload className="w-3.5 h-3.5" />
-                              <span>{place.image ? 'تغییر' : 'آپلود'}</span>
+              <div className="space-y-4">
+                {draft.nearbyPlaces.length > 0 ? (
+                  draft.nearbyPlaces.map((place, index) => (
+                    <div
+                      key={place.id}
+                      className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30 space-y-4"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-gray-700 dark:text-gray-200 tabular-nums">
+                          مکان نزدیک #{index + 1}
+                          {place.title ? ` · ${place.title}` : ''}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveNearby(place.id)}
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 dark:text-red-400 hover:underline"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>حذف مکان</span>
+                        </button>
+                      </div>
+
+                      <div className="flex flex-col md:flex-row gap-4 items-start">
+                        {/* پیش‌نمایش بزرگ‌تر تصویر مکان */}
+                        <div className="w-full md:w-36 shrink-0 space-y-2">
+                          {place.image ? (
+                            <button
+                              type="button"
+                              onClick={() => setPreviewImageUrl(place.image || null)}
+                              className="relative w-full h-28 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 group focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                              title="مشاهده پیش‌نمایش بزرگ‌تر"
+                            >
+                              <img
+                                src={place.image}
+                                alt={place.title || 'عکس مکان نزدیک'}
+                                className="w-full h-full object-cover"
+                              />
+                              <span className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1 text-white text-[11px] font-semibold">
+                                <Eye className="w-4 h-4" />
+                                <span>پیش‌نمایش</span>
+                              </span>
+                            </button>
+                          ) : (
+                            <label className="w-full h-28 rounded-xl border border-dashed border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800/70 flex flex-col items-center justify-center gap-1.5 text-gray-400 hover:border-[#6644F0] hover:text-[#6644F0] cursor-pointer transition-colors">
+                              <ImageIcon className="w-6 h-6" />
+                              <span className="text-[11px] font-semibold">آپلود عکس</span>
                               <input
                                 type="file"
                                 accept="image/*"
@@ -1712,27 +1683,133 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
                                 }}
                               />
                             </label>
-                          </td>
-                          <td className="p-2.5 text-center">
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveNearby(place.id)}
-                              className="p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={8} className="py-6 text-center text-xs text-gray-400">
-                          هیچ مکان دیدنی نزدیک هتل ثبت نشده است.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+                          )}
+
+                          <div className="flex items-center gap-1.5">
+                            <label className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 text-[11px] font-semibold cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600 whitespace-nowrap transition-colors">
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>{place.image ? 'تغییر عکس' : 'انتخاب فایل'}</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={e => {
+                                  const f = e.target.files?.[0];
+                                  if (f) handleImageUpload(f, url => handleUpdateNearby(place.id, 'image', url));
+                                }}
+                              />
+                            </label>
+                            {place.image && (
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateNearby(place.id, 'image', '')}
+                                className="p-1.5 rounded-lg bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-400 hover:text-red-600 hover:border-red-300 transition-colors shrink-0"
+                                title="حذف عکس"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* فیلدهای اطلاعات مکان در دو ردیف */}
+                        <div className="flex-1 w-full space-y-3">
+                          {/* ردیف اول */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div className="lg:col-span-2">
+                              <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
+                                عنوان مکان:
+                              </label>
+                              <input
+                                type="text"
+                                value={place.title}
+                                onChange={e => handleUpdateNearby(place.id, 'title', e.target.value)}
+                                placeholder="مثال: خانه هنرمندان ایران"
+                                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
+                                مسافت (متر):
+                              </label>
+                              <input
+                                type="number"
+                                dir="ltr"
+                                value={place.distanceMeters}
+                                onChange={e =>
+                                  handleUpdateNearby(place.id, 'distanceMeters', Number(e.target.value) || 0)
+                                }
+                                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
+                                با ماشین (دقیقه):
+                              </label>
+                              <input
+                                type="number"
+                                dir="ltr"
+                                value={place.driveMinutes}
+                                onChange={e =>
+                                  handleUpdateNearby(place.id, 'driveMinutes', Number(e.target.value) || 0)
+                                }
+                                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                              />
+                            </div>
+                          </div>
+
+                          {/* ردیف دوم */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
+                                پیاده‌روی (دقیقه):
+                              </label>
+                              <input
+                                type="number"
+                                dir="ltr"
+                                value={place.walkMinutes}
+                                onChange={e =>
+                                  handleUpdateNearby(place.id, 'walkMinutes', Number(e.target.value) || 0)
+                                }
+                                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
+                                عرض جغرافیایی (Lat):
+                              </label>
+                              <input
+                                type="text"
+                                dir="ltr"
+                                value={place.lat}
+                                onChange={e => handleUpdateNearby(place.id, 'lat', e.target.value)}
+                                placeholder="35.710500"
+                                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1.5">
+                                طول جغرافیایی (Lng):
+                              </label>
+                              <input
+                                type="text"
+                                dir="ltr"
+                                value={place.lng}
+                                onChange={e => handleUpdateNearby(place.id, 'lng', e.target.value)}
+                                placeholder="51.419800"
+                                className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-gray-400 py-6 text-center">
+                    هیچ مکان دیدنی نزدیک هتل ثبت نشده است.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -2214,6 +2291,13 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
         room={activeCalendarRoom}
         onClose={() => setCalendarRoomId(null)}
         onSave={handleSaveRoomRanges}
+      />
+
+      {/* مودال پیش‌نمایش تصویر بزرگ‌تر */}
+      <ImagePreviewModal
+        isOpen={Boolean(previewImageUrl)}
+        imageUrl={previewImageUrl}
+        onClose={() => setPreviewImageUrl(null)}
       />
     </div>
   );
