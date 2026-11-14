@@ -5,7 +5,6 @@ import {
   ArrowRight,
   Save,
   Building2,
-  Tags,
   Image as ImageIcon,
   RefreshCw,
   TrendingUp,
@@ -21,10 +20,13 @@ import {
   Upload,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Search,
   Sparkles,
   Check,
 } from 'lucide-react';
+import { Tag as IconsaxTag, HomeTrendUp as IconsaxHomeTrendUp } from 'iconsax-reactjs';
 import {
   HotelItem,
   FacilityOption,
@@ -43,6 +45,7 @@ import YoastSeoPanel from './YoastSeoPanel';
 import QuickAddOptionModal, { QuickAddMode } from './QuickAddOptionModal';
 import RoomPriceCalendarModal from './RoomPriceCalendarModal';
 import DualServiceSelector from './DualServiceSelector';
+import FilterStyleDropdown from './FilterStyleDropdown';
 
 interface HotelEditorProps {
   initialHotel: HotelItem;
@@ -57,6 +60,7 @@ interface HotelEditorProps {
   onAddRoomFacilityOption: (opt: FacilityOption) => void;
   onAddLogoOption: (opt: LogoOption) => void;
   onAddRoomServiceOption: (service: string) => void;
+  onSaveStep?: (hotel: HotelItem, stepLabel: string) => void;
   onSave: (hotel: HotelItem) => void;
   onCancel: () => void;
   onShowToast: (message: string, type: 'success' | 'error') => void;
@@ -71,9 +75,17 @@ type EditorSectionId =
   | 'extras'
   | 'rooms';
 
+const IconsaxHomeTrendUpIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <IconsaxHomeTrendUp size={16} color="currentColor" variant="Outline" className={className} />
+);
+
+const IconsaxTagIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <IconsaxTag size={16} color="currentColor" variant="Outline" className={className} />
+);
+
 const sectionTabs: { id: EditorSectionId; label: string; Icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: 'basic', label: 'اطلاعات پایه و انتشار', Icon: Building2 },
-  { id: 'facilities', label: 'برچسب‌ها و امکانات', Icon: Tags },
+  { id: 'basic', label: 'اطلاعات پایه و انتشار', Icon: IconsaxHomeTrendUpIcon },
+  { id: 'facilities', label: 'برچسب‌ها و امکانات', Icon: IconsaxTagIcon },
   { id: 'media', label: 'تصاویر و توضیحات', Icon: ImageIcon },
   { id: 'snapp', label: 'اتصال اسنپ‌تریپ', Icon: RefreshCw },
   { id: 'seo', label: 'سئو (Yoast SEO)', Icon: TrendingUp },
@@ -94,12 +106,16 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
   onAddRoomFacilityOption,
   onAddLogoOption,
   onAddRoomServiceOption,
+  onSaveStep,
   onSave,
   onCancel,
   onShowToast,
 }) => {
   const [draft, setDraft] = useState<HotelItem>(() => JSON.parse(JSON.stringify(initialHotel)));
   const [activeSection, setActiveSection] = useState<EditorSectionId>('basic');
+  const [savedSteps, setSavedSteps] = useState<EditorSectionId[]>(() =>
+    isCreating ? [] : sectionTabs.map(t => t.id)
+  );
 
   // جستجوی داخل انتخابگرهای چندتایی
   const [tagSearch, setTagSearch] = useState('');
@@ -118,6 +134,7 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
     initialHotel.rooms.length > 0 ? [initialHotel.rooms[0].id] : []
   );
 
+  const contentScrollRef = useRef<HTMLDivElement>(null);
   const mainImgInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -233,8 +250,12 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
 
   const selectedLogoObj = availableLogos.find(l => l.id === draft.logoId);
 
-  // تگ‌های عمومی هتل
+  // تگ‌های عمومی هتل (حداکثر ۳ مورد)
   const handleAddPublicTag = () => {
+    if (draft.publicTags.length >= 3) {
+      onShowToast('تگ‌های عمومی هتل حداکثر ۳ مورد می‌باشد.', 'error');
+      return;
+    }
     updateField('publicTags', [
       ...draft.publicTags,
       { id: `pt-${Date.now()}`, title: '' },
@@ -311,26 +332,26 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
     );
   };
 
-  // درصد جریمه کنسلی
-  const handleAddPenalty = () => {
+  // درصد جریمه کنسلی (یک مقدار واحد برای هر هتل)
+  const currentPenalty = draft.cancellationPenalties[0] ?? {
+    id: `cp-${draft.id}-1`,
+    percent: 0,
+    title: '',
+  };
+
+  const handleUpdateSinglePenalty = (key: 'percent' | 'title', value: string | number) => {
+    const nextPercent =
+      key === 'percent'
+        ? Math.min(100, Math.max(0, Number(value) || 0))
+        : currentPenalty.percent;
+    const nextTitle = key === 'title' ? String(value) : currentPenalty.title || '';
     updateField('cancellationPenalties', [
-      ...draft.cancellationPenalties,
-      { id: `cp-${Date.now()}`, percent: 0, title: '' },
+      {
+        id: currentPenalty.id,
+        percent: nextPercent,
+        title: nextTitle,
+      },
     ]);
-  };
-
-  const handleUpdatePenalty = (id: string, key: 'percent' | 'title', value: string | number) => {
-    updateField(
-      'cancellationPenalties',
-      draft.cancellationPenalties.map(p => (p.id === id ? { ...p, [key]: value } : p))
-    );
-  };
-
-  const handleRemovePenalty = (id: string) => {
-    updateField(
-      'cancellationPenalties',
-      draft.cancellationPenalties.filter(p => p.id !== id)
-    );
   };
 
   // اتاق‌ها
@@ -385,12 +406,72 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
     onShowToast('بازه‌های زمانی و قیمت‌های اتاق با موفقیت به‌روزرسانی شد.', 'success');
   };
 
-  const handleSubmitHotel = () => {
+  const currentStepIndex = Math.max(
+    0,
+    sectionTabs.findIndex(t => t.id === activeSection)
+  );
+  const isFirstStep = currentStepIndex === 0;
+  const isLastStep = currentStepIndex === sectionTabs.length - 1;
+  const currentTabMeta = sectionTabs[currentStepIndex];
+
+  const toPersianDigits = (num: number) =>
+    String(num).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[Number(d)]);
+
+  const scrollToTop = () => {
+    contentScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const ensureHotelName = () => {
     if (!draft.name.trim()) {
       setActiveSection('basic');
-      onShowToast('لطفاً نام هتل را وارد کنید.', 'error');
-      return;
+      onShowToast('لطفاً ابتدا نام هتل را در مرحله اطلاعات پایه وارد کنید.', 'error');
+      return false;
     }
+    return true;
+  };
+
+  const markStepSaved = (stepId: EditorSectionId) => {
+    setSavedSteps(prev => (prev.includes(stepId) ? prev : [...prev, stepId]));
+  };
+
+  const handleSelectTab = (tabId: EditorSectionId) => {
+    setActiveSection(tabId);
+    scrollToTop();
+  };
+
+  const handleSaveCurrentStepOnly = () => {
+    if (!ensureHotelName()) return;
+    markStepSaved(activeSection);
+    if (onSaveStep) {
+      onSaveStep(draft, currentTabMeta.label);
+    } else {
+      onShowToast(`اطلاعات مرحله «${currentTabMeta.label}» با موفقیت ذخیره شد.`, 'success');
+    }
+  };
+
+  const handleSaveAndNextStep = () => {
+    if (!ensureHotelName()) return;
+    markStepSaved(activeSection);
+    if (onSaveStep) {
+      onSaveStep(draft, currentTabMeta.label);
+    }
+    if (!isLastStep) {
+      const nextTab = sectionTabs[currentStepIndex + 1];
+      setActiveSection(nextTab.id);
+      scrollToTop();
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (isFirstStep) return;
+    const prevTab = sectionTabs[currentStepIndex - 1];
+    setActiveSection(prevTab.id);
+    scrollToTop();
+  };
+
+  const handleSubmitHotel = () => {
+    if (!ensureHotelName()) return;
+    markStepSaved(activeSection);
     onSave(draft);
   };
 
@@ -414,9 +495,13 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
               <span>مدیریت هتل و اتاق‌ها</span>
               <span>/</span>
               <span>{isCreating ? 'افزودن هتل جدید' : `ویرایش هتل #${draft.id}`}</span>
+              <span>/</span>
+              <span className="text-[#6644F0] dark:text-violet-300 font-semibold tabular-nums">
+                مرحله {toPersianDigits(currentStepIndex + 1)} از {toPersianDigits(sectionTabs.length)}
+              </span>
             </div>
             <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100 truncate mt-0.5">
-              {isCreating ? 'ثبت هتل جدید در سیستم' : draft.name || 'ویرایش اطلاعات هتل'}
+              {draft.name.trim() ? draft.name : isCreating ? 'ثبت هتل جدید در سیستم' : 'ویرایش اطلاعات هتل'}
             </h1>
           </div>
         </div>
@@ -429,32 +514,38 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
           >
             بازگشت به لیست
           </button>
-          <button
-            type="button"
-            onClick={handleSubmitHotel}
-            className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#6644F0] hover:bg-[#5533E0] transition-colors flex items-center gap-2 shadow-sm whitespace-nowrap"
-          >
-            <Save className="w-4 h-4" />
-            <span>{isCreating ? 'ذخیره و ثبت هتل' : 'ذخیره تغییرات هتل'}</span>
-          </button>
         </div>
       </div>
 
-      {/* تب‌های بخش‌بندی فرم */}
+      {/* تب‌های مرحله‌بندی فرم */}
       <div className="px-6 py-3 border-b border-gray-100 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/80 flex flex-wrap items-center gap-2">
-        {sectionTabs.map(({ id, label, Icon }) => {
+        {sectionTabs.map(({ id, label, Icon }, index) => {
           const isActive = activeSection === id;
+          const isSaved = savedSteps.includes(id);
           return (
             <button
               key={id}
               type="button"
-              onClick={() => setActiveSection(id)}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
+              onClick={() => handleSelectTab(id)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap shrink-0 transition-all ${
                 isActive
                   ? 'bg-[#6644F0] text-white shadow-sm'
+                  : isSaved
+                  ? 'bg-emerald-50/80 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:border-emerald-400'
                   : 'bg-white dark:bg-gray-700/60 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-[#6644F0]/50 hover:text-[#6644F0] dark:hover:text-violet-300'
               }`}
             >
+              <span
+                className={`w-5 h-5 rounded-full text-[11px] font-bold flex items-center justify-center shrink-0 tabular-nums ${
+                  isActive
+                    ? 'bg-white/20 text-white'
+                    : isSaved
+                    ? 'bg-emerald-500 text-white'
+                    : 'bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-200'
+                }`}
+              >
+                {isSaved && !isActive ? <Check className="w-3 h-3" /> : toPersianDigits(index + 1)}
+              </span>
               <Icon className="w-4 h-4 shrink-0" />
               <span>{label}</span>
               {id === 'rooms' && (
@@ -468,7 +559,7 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
       </div>
 
       {/* محتوای هر بخش */}
-      <div className="p-6 flex-1 overflow-y-auto space-y-6">
+      <div ref={contentScrollRef} className="p-6 flex-1 overflow-y-auto space-y-6">
         {/* ======================== بخش ۱: اطلاعات پایه و انتشار ======================== */}
         {activeSection === 'basic' && (
           <div className="space-y-6">
@@ -611,38 +702,26 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-200 mb-2">
                     شهر:
                   </label>
-                  <select
+                  <FilterStyleDropdown
                     value={draft.city}
-                    onChange={e => updateField('city', e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
-                  >
-                    {cityOptions
-                      .filter(c => c.value !== 'همه')
-                      .map(opt => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                  </select>
+                    onChange={(val) => updateField('city', val)}
+                    options={cityOptions.filter((c) => c.value !== 'همه')}
+                    placeholder="انتخاب شهر..."
+                    searchable={true}
+                  />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-gray-700 dark:text-gray-200 mb-2">
                     نوع اقامتگاه:
                   </label>
-                  <select
+                  <FilterStyleDropdown
                     value={draft.type}
-                    onChange={e => updateField('type', e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
-                  >
-                    {typeOptions
-                      .filter(t => t.value !== 'همه')
-                      .map(opt => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                  </select>
+                    onChange={(val) => updateField('type', val)}
+                    options={typeOptions.filter((t) => t.value !== 'همه')}
+                    placeholder="انتخاب نوع اقامتگاه..."
+                    searchable={true}
+                  />
                 </div>
 
                 <div>
@@ -753,18 +832,16 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
                       <span>افزودن لوگوی جدید</span>
                     </button>
                   </div>
-                  <select
+                  <FilterStyleDropdown
                     value={draft.logoId}
-                    onChange={e => updateField('logoId', e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-semibold text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
-                  >
-                    <option value="">انتخاب کنید...</option>
-                    {availableLogos.map(l => (
-                      <option key={l.id} value={l.id}>
-                        {l.label}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => updateField('logoId', val)}
+                    options={[
+                      { label: 'انتخاب کنید...', value: '' },
+                      ...availableLogos.map((l) => ({ label: l.label, value: l.id })),
+                    ]}
+                    placeholder="انتخاب کنید..."
+                    searchable={true}
+                  />
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -1078,16 +1155,24 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
               <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700">
                 <div>
                   <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100">
-                    تگ‌های عمومی هتل
+                    تگ‌های عمومی هتل{' '}
+                    <span className="text-xs font-medium text-gray-400 tabular-nums">
+                      ({draft.publicTags.length}/۳)
+                    </span>
                   </h2>
                   <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
-                    تگ‌های اختصاصی نمایش‌داده‌شده در صفحه هتل و لیست‌ها
+                    حداکثر ۳ تگ عمومی اختصاصی نمایش‌داده‌شده در صفحه هتل و لیست‌ها
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleAddPublicTag}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-[#6644F0] dark:text-violet-300 text-xs font-bold hover:bg-violet-100 dark:hover:bg-violet-900/50 transition-colors"
+                  disabled={draft.publicTags.length >= 3}
+                  className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-colors ${
+                    draft.publicTags.length >= 3
+                      ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                      : 'bg-violet-50 dark:bg-violet-950/40 text-[#6644F0] dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/50'
+                  }`}
                 >
                   <Plus className="w-4 h-4" />
                   <span>افزودن تگ عمومی</span>
@@ -1651,68 +1736,49 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
               </div>
             </div>
 
-            {/* درصد جریمه کنسلی */}
+            {/* درصد جریمه کنسلی (واحد برای هر هتل) */}
             <div className="p-5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-gray-100 dark:border-gray-700">
-                <div>
-                  <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100">
-                    درصد جریمه کنسلی
-                  </h2>
-                  <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
-                    درصد جریمه کنسلی رزرو را برای بازه‌های مختلف تعریف کنید.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleAddPenalty}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-violet-50 dark:bg-violet-950/40 text-[#6644F0] dark:text-violet-300 text-xs font-bold hover:bg-violet-100 dark:hover:bg-violet-900/50 transition-colors"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>افزودن ردیف جریمه</span>
-                </button>
+              <div className="pb-3 border-b border-gray-100 dark:border-gray-700">
+                <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100">
+                  درصد جریمه کنسلی
+                </h2>
+                <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+                  درصد جریمه کنسلی رزرو به صورت یک قانون واحد برای کل این هتل ثبت می‌شود.
+                </p>
               </div>
 
-              <div className="space-y-2.5">
-                {draft.cancellationPenalties.length > 0 ? (
-                  draft.cancellationPenalties.map((cp, idx) => (
-                    <div key={cp.id} className="grid grid-cols-1 sm:grid-cols-[1fr_160px_auto] gap-3 items-center">
-                      <input
-                        type="text"
-                        value={cp.title || ''}
-                        onChange={e => handleUpdatePenalty(cp.id, 'title', e.target.value)}
-                        placeholder={`توضیح بازه کنسلی #${idx + 1} (مثال: کمتر از ۲۴ ساعت تا ورود)`}
-                        className="px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
-                      />
-                      <div className="relative">
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          dir="ltr"
-                          value={cp.percent}
-                          onChange={e =>
-                            handleUpdatePenalty(cp.id, 'percent', Number(e.target.value) || 0)
-                          }
-                          className="w-full pl-9 pr-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
-                        />
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
-                          %
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemovePenalty(cp.id)}
-                        className="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors justify-self-end"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-xs text-gray-400 py-3 text-center">
-                    هنوز قانون جریمه کنسلی ثبت نشده است.
-                  </p>
-                )}
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_200px] gap-4 items-end">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-200 mb-2">
+                    توضیح شرایط کنسلی:
+                  </label>
+                  <input
+                    type="text"
+                    value={currentPenalty.title || ''}
+                    onChange={e => handleUpdateSinglePenalty('title', e.target.value)}
+                    placeholder="مثال: تا ۲۴ ساعت پیش از ورود"
+                    className="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-xl text-xs text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 dark:text-gray-200 mb-2">
+                    درصد جریمه کنسلی:
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      max={100}
+                      dir="ltr"
+                      value={currentPenalty.percent}
+                      onChange={e => handleUpdateSinglePenalty('percent', e.target.value)}
+                      className="w-full pl-9 pr-3.5 py-2.5 bg-gray-50 dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 rounded-xl text-xs font-mono tabular-nums text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#6644F0]"
+                    />
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                      %
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2063,27 +2129,73 @@ const HotelEditor: React.FC<HotelEditorProps> = ({
         )}
       </div>
 
-      {/* فوتر ثابت پایین فرم ویرایش */}
-      <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/90 flex flex-wrap items-center justify-between gap-3">
-        <span className="text-xs text-gray-500 dark:text-gray-400">
-          {isCreating ? 'در حال ثبت هتل جدید' : `در حال ویرایش: ${draft.name || 'هتل'}`}
-        </span>
+      {/* فوتر مرحله‌بندی پایین فرم ویرایش */}
+      <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/90 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300 font-semibold tabular-nums">
+            <span>
+              مرحله {toPersianDigits(currentStepIndex + 1)} از {toPersianDigits(sectionTabs.length)}:
+            </span>
+            <span className="text-[#6644F0] dark:text-violet-300">{currentTabMeta.label}</span>
+          </div>
+          <div className="hidden sm:block w-28 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#6644F0] rounded-full transition-all duration-300"
+              style={{
+                width: `${Math.round(((currentStepIndex + 1) / sectionTabs.length) * 100)}%`,
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          {!isFirstStep ? (
+            <button
+              type="button"
+              onClick={handlePrevStep}
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex items-center gap-1.5 whitespace-nowrap"
+            >
+              <ChevronRight className="w-4 h-4" />
+              <span>مرحله قبلی</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
+            >
+              انصراف
+            </button>
+          )}
+
           <button
             type="button"
-            onClick={onCancel}
-            className="px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
-          >
-            انصراف
-          </button>
-          <button
-            type="button"
-            onClick={handleSubmitHotel}
-            className="px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-[#6644F0] hover:bg-[#5533E0] transition-colors flex items-center gap-2 shadow-sm"
+            onClick={handleSaveCurrentStepOnly}
+            className="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#6644F0] dark:text-violet-300 bg-violet-50 dark:bg-violet-950/50 border border-[#6644F0]/30 dark:border-violet-700 hover:bg-violet-100 dark:hover:bg-violet-900/50 transition-colors flex items-center gap-1.5 whitespace-nowrap"
           >
             <Save className="w-4 h-4" />
-            <span>{isCreating ? 'ثبت و ذخیره هتل' : 'ذخیره تغییرات هتل'}</span>
+            <span>ذخیره این مرحله</span>
           </button>
+
+          {!isLastStep ? (
+            <button
+              type="button"
+              onClick={handleSaveAndNextStep}
+              className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#6644F0] hover:bg-[#5533E0] transition-colors flex items-center gap-1.5 shadow-sm whitespace-nowrap"
+            >
+              <span>ذخیره و مرحله بعدی</span>
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleSubmitHotel}
+              className="px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 transition-colors flex items-center gap-2 shadow-sm whitespace-nowrap"
+            >
+              <Save className="w-4 h-4" />
+              <span>ذخیره نهایی هتل</span>
+            </button>
+          )}
         </div>
       </div>
 

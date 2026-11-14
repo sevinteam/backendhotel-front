@@ -182,12 +182,28 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast }) => {
     setEditorState({ mode: 'create', hotel: createEmptyHotel(maxId + 1) });
   };
 
+  const handleSaveHotelStep = (draftHotel: HotelItem, stepLabel: string) => {
+    setHotels(prev => {
+      const exists = prev.some(h => h.id === draftHotel.id);
+      if (exists) {
+        return prev.map(h => (h.id === draftHotel.id ? draftHotel : h));
+      }
+      return [draftHotel, ...prev];
+    });
+    onShowToast(`اطلاعات مرحله «${stepLabel}» با موفقیت ذخیره شد.`, 'success');
+  };
+
   const handleSaveHotel = (savedHotel: HotelItem) => {
+    setHotels(prev => {
+      const exists = prev.some(h => h.id === savedHotel.id);
+      if (exists) {
+        return prev.map(h => (h.id === savedHotel.id ? savedHotel : h));
+      }
+      return [savedHotel, ...prev];
+    });
     if (editorState.mode === 'create') {
-      setHotels(prev => [savedHotel, ...prev]);
-      onShowToast(`هتل «${savedHotel.name}» با موفقیت ثبت شد.`, 'success');
+      onShowToast(`هتل «${savedHotel.name}» با موفقیت ذخیره و ثبت شد.`, 'success');
     } else {
-      setHotels(prev => prev.map(h => (h.id === savedHotel.id ? savedHotel : h)));
       onShowToast(`تغییرات هتل «${savedHotel.name}» با موفقیت ذخیره شد.`, 'success');
     }
     setEditorState({ mode: 'list', hotel: null });
@@ -214,6 +230,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast }) => {
   if (editorState.mode !== 'list' && editorState.hotel) {
     return (
       <HotelEditor
+        key={`${editorState.mode}-${editorState.hotel.id}`}
         initialHotel={editorState.hotel}
         isCreating={editorState.mode === 'create'}
         availableTags={availableTags}
@@ -234,6 +251,7 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast }) => {
         onAddRoomServiceOption={svc =>
           setAvailableRoomServices(prev => (prev.includes(svc) ? prev : [svc, ...prev]))
         }
+        onSaveStep={handleSaveHotelStep}
         onSave={handleSaveHotel}
         onCancel={() => setEditorState({ mode: 'list', hotel: null })}
         onShowToast={onShowToast}
@@ -438,20 +456,30 @@ const HotelManagement: React.FC<HotelManagementProps> = ({ onShowToast }) => {
                         </button>
                       </td>
                       <td className="p-3">
-                        <div className="flex flex-wrap items-center gap-1.5 min-w-[160px] max-w-[240px]">
-                          {hotel.tags.length > 0 ? (
-                            hotel.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="inline-flex items-center px-2.5 py-1 rounded-lg bg-violet-50 dark:bg-violet-950/60 border border-[#6644F0]/60 dark:border-violet-600 text-[#5533E0] dark:text-violet-300 text-[11px] font-bold whitespace-nowrap"
-                              >
-                                {tag}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-gray-400 dark:text-gray-500">—</span>
-                          )}
-                        </div>
+                        {(() => {
+                          const publicTagTitles = hotel.publicTags
+                            .map((pt) => pt.title.trim())
+                            .filter(Boolean);
+                          const generalTags = (
+                            publicTagTitles.length > 0 ? publicTagTitles : hotel.tags
+                          ).slice(0, 3);
+                          return (
+                            <div className="flex flex-wrap items-center gap-1.5 min-w-[160px] max-w-[260px]">
+                              {generalTags.length > 0 ? (
+                                generalTags.map((tag, idx) => (
+                                  <span
+                                    key={`${tag}-${idx}`}
+                                    className="inline-flex items-center px-2.5 py-1 rounded-lg bg-violet-50 dark:bg-violet-950/60 border border-[#6644F0]/60 dark:border-violet-600 text-[#5533E0] dark:text-violet-300 text-[11px] font-bold whitespace-nowrap"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="text-gray-400 dark:text-gray-500">—</span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="p-3 text-center">
                         <button
